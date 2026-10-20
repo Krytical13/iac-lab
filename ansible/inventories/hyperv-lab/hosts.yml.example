@@ -1,3 +1,4 @@
+---
 # ansible/inventories/hyperv-lab/hosts.yml.example — what Terraform writes to hosts.yml
 # after a successful apply (terraform/environments/hyperv/inventory.tf). The real
 # file is gitignored because it holds your VMs' addresses. ansible.cfg tells

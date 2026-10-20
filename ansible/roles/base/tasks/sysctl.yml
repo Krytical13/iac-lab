@@ -1,5 +1,8 @@
 ---
 # roles/base/tasks/sysctl.yml
+# sysctl_set applies the value now; state present also writes it to
+# /etc/sysctl.conf so it survives a reboot. base_sysctl_overrides (group_vars /
+# host_vars) replaces individual keys for hosts that need an exception.
 - name: Apply sysctl hardening parameters
   ansible.posix.sysctl:
     name: "{{ item.key }}"
@@ -7,5 +10,5 @@
     sysctl_set: true
     state: present
     reload: true
-  loop: "{{ sysctl_settings | dict2items }}"
+  loop: "{{ (sysctl_settings | combine(base_sysctl_overrides)) | dict2items }}"
   become: true

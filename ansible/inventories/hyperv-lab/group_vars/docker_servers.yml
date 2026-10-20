@@ -5,6 +5,12 @@ docker_users:                        # added to the docker group: run docker wit
   - sysadmin
 docker_install_compose_plugin: true
 
+# The baseline sets net.ipv4.ip_forward=0; Docker needs 1 for every container's
+# networking. Without this exception, each base.yml run after dockerd starts
+# reports a change and silently breaks published ports until Docker restarts.
+base_sysctl_overrides:
+  net.ipv4.ip_forward: "1"
+
 # Nothing to add to the firewall for Docker itself: Docker writes its own
 # iptables rules AHEAD of ufw, so a published port (-p) is reachable whether
 # ufw allows it or not. Module 08 shows this and the DOCKER-USER chain.

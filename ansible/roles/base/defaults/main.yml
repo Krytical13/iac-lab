@@ -44,6 +44,11 @@ sysctl_settings:
   kernel.kptr_restrict: "2"
   kernel.dmesg_restrict: "1"
 
+# Per-group or per-host exceptions, merged over sysctl_settings. A Docker host
+# needs net.ipv4.ip_forward=1 (dockerd turns it on at start; this baseline would
+# turn it off again on the next run and break every container's networking).
+base_sysctl_overrides: {}
+
 # Chrony NTP
 chrony_ntp_servers:
   - 0.pool.ntp.org
