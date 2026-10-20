@@ -24,5 +24,5 @@
 
     - name: Conditional based on OS
       ansible.builtin.debug:
-        msg: "Running on {{ ansible_distribution }} {{ ansible_distribution_version }}"
-      when: ansible_os_family == "Debian"
+        msg: "Running on {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+      when: ansible_facts['os_family'] == "Debian"

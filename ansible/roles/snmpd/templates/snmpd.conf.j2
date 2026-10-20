@@ -10,7 +10,7 @@ rocommunity {{ vault_snmpd_community }} {{ 'default' if snmpd_allowed_network ==
 
 # System information
 sysLocation    {{ snmpd_sys_location }}
-sysContact     {{ admin_user | default('sysadmin') }}@{{ ansible_domain | default('localhost', true) }}
+sysContact     {{ admin_user | default('sysadmin') }}@{{ ansible_facts['domain'] | default('localhost', true) }}
 
 # Restrict views
 view systemonly included .1.3.6.1.2.1.1

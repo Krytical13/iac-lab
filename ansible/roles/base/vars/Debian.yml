@@ -1,11 +1,12 @@
 ---
 # roles/base/vars/Debian.yml — what differs on the Debian family (Ubuntu).
-# Loaded by tasks/main.yml with include_vars "{{ ansible_os_family }}.yml".
+# Loaded by tasks/main.yml with include_vars "{{ ansible_facts['os_family'] }}.yml".
 base_packages_os:
   - gnupg
   - dnsutils
 base_packages_remove:
   - telnet
+  - inetutils-telnet                         # what actually provides /usr/bin/telnet on Ubuntu 24.04
   - rsh-client
 base_auto_update_packages:
   - unattended-upgrades

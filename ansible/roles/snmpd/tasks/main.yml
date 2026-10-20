@@ -3,7 +3,7 @@
 # The firewall is NOT opened here: the base role's base_firewall_rules already
 # allow 161/udp from snmpd_allowed_network, on ufw and firewalld alike.
 - name: Load OS family variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
   tags: [always]
 
 - name: Install snmpd

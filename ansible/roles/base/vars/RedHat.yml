@@ -1,6 +1,6 @@
 ---
 # roles/base/vars/RedHat.yml — what differs on the RedHat family (Rocky, RHEL, Alma).
-# Loaded by tasks/main.yml with include_vars "{{ ansible_os_family }}.yml".
+# Loaded by tasks/main.yml with include_vars "{{ ansible_facts['os_family'] }}.yml".
 base_packages_os:
   - gnupg2
   - bind-utils
