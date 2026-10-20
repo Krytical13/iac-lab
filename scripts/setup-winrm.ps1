@@ -70,17 +70,20 @@ Write-Host "[3/5] Authentication: NTLM only (Basic off), encryption required..."
 # Only change a setting that differs: WinRM refuses to change service settings while any
 # network connection is in the Public profile, so an unneeded Set-Item would just fail.
 $script:warned = $false
-function Ensure-WSManValue([string]$Path, [string]$Value, [string]$What) {
+function Ensure-WSManValue([string]$Path, [string]$Value, [string]$What, [switch]$Required) {
     $current = (Get-Item $Path).Value
     if ("$current" -ieq $Value) { Write-Host "      $What already $Value"; return }
     try { Set-Item $Path $Value -Force; Write-Host "      $What set to $Value" }
     catch {
-        Write-Warning "could not set $What to $Value. A network connection on this host is in the Public profile; run 'Set-NetConnectionProfile -NetworkCategory Private' for it (or leave it and accept the current value $current)."
+        $hint = "A network connection on this host is in the Public profile; run 'Set-NetConnectionProfile -NetworkCategory Private' for it and re-run this script."
+        if ($Required) { throw "could not set $What to $Value (currently $current). $hint" }
+        Write-Warning "could not set $What to $Value; keeping $current. $hint"
         $script:warned = $true
     }
 }
-Ensure-WSManValue 'WSMan:\localhost\Service\Auth\Basic'      'false'   'Basic auth'
-Ensure-WSManValue 'WSMan:\localhost\Service\AllowUnencrypted' 'false'   'AllowUnencrypted'
+# The two security settings fail closed: no listener is worth having with Basic or plaintext allowed.
+Ensure-WSManValue 'WSMan:\localhost\Service\Auth\Basic'      'false'   'Basic auth'       -Required
+Ensure-WSManValue 'WSMan:\localhost\Service\AllowUnencrypted' 'false'   'AllowUnencrypted' -Required
 Ensure-WSManValue 'WSMan:\localhost\MaxTimeoutms'              '1800000' 'MaxTimeoutms'
 # A local administrator connecting remotely gets a filtered (non-admin) token unless this is 1;
 # Enable-PSRemoting sets it on workgroup machines, but be explicit so Hyper-V cmdlets work for tfadmin.

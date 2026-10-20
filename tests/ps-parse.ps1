@@ -12,6 +12,7 @@ function Check([bool]$ok, [string]$msg) { if ($ok) { "ok   $msg" } else { "FAIL 
 Check ($cmds -contains 'Enable-PSRemoting')               'calls Enable-PSRemoting'
 Check ($text -match "Auth\\Basic'\s+'false'")           'leaves Basic auth off'
 Check ($text -match "AllowUnencrypted'\s+'false'")       'keeps AllowUnencrypted off'
+Check (($text -split "`n" | Where-Object { $_ -match "Auth\\Basic'|AllowUnencrypted'" } | Where-Object { $_ -notmatch '-Required' }).Count -eq 0) 'Basic/AllowUnencrypted fail closed (-Required)'
 Check ($text -match '(-LocalPort\s+|LocalPort\s*=\s*)5986')   'opens TCP 5986'
 Check ($text -match 'LocalAccountTokenFilterPolicy\s+-Value\s+1') 'sets LocalAccountTokenFilterPolicy=1 for the local admin'
 $params = @(); if ($ast.ParamBlock) { $params = $ast.ParamBlock.Parameters | ForEach-Object { $_.Name.VariablePath.UserPath } }
