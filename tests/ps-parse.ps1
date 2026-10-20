@@ -10,9 +10,10 @@ $text = $ast.Extent.Text
 $script:rc = 0
 function Check([bool]$ok, [string]$msg) { if ($ok) { "ok   $msg" } else { "FAIL $msg"; $script:rc = 1 } }
 Check ($cmds -contains 'Enable-PSRemoting')               'calls Enable-PSRemoting'
-Check ($text -match 'Auth\\Basic\s+\$false')              'leaves Basic auth off'
-Check ($text -match 'AllowUnencrypted\s+\$false')         'keeps AllowUnencrypted off'
+Check ($text -match "Auth\\Basic'\s+'false'")           'leaves Basic auth off'
+Check ($text -match "AllowUnencrypted'\s+'false'")       'keeps AllowUnencrypted off'
 Check ($text -match '(-LocalPort\s+|LocalPort\s*=\s*)5986')   'opens TCP 5986'
+Check ($text -match 'LocalAccountTokenFilterPolicy\s+-Value\s+1') 'sets LocalAccountTokenFilterPolicy=1 for the local admin'
 $params = @(); if ($ast.ParamBlock) { $params = $ast.ParamBlock.Parameters | ForEach-Object { $_.Name.VariablePath.UserPath } }
 Check ($params -contains 'ImageRoot')                     'has an -ImageRoot parameter'
 foreach ($d in 'Images', 'Images\seeds', 'VHDs', 'VMs') { Check ($text -match [regex]::Escape("'$d'")) "creates <ImageRoot>\$d" }
