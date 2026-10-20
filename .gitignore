@@ -18,6 +18,11 @@ tf.log
 # Written by Terraform from the VMs' real addresses
 ansible/inventories/hyperv-lab/hosts.yml
 
+# Ansible: the vault password, third-party roles from Galaxy, retry files
+ansible/.vault_pass
+ansible/galaxy_roles/
+*.retry
+
 # Per-machine values for the host tests (see tests/host.env.example)
 tests/host.env
 
@@ -25,3 +30,6 @@ tests/host.env
 *.pem
 *.key
 .DS_Store
+
+# ansible-lint / ansible-galaxy project cache
+ansible/.ansible/

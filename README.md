@@ -13,6 +13,10 @@ A self-paced Infrastructure as Code lab: Terraform builds Linux VMs on a Hyper-V
 | `ansible/` | Roles, playbooks, inventories and examples for the Ansible guide |
 | `tests/` | Small shell and PowerShell checks the lab was verified with |
 
+## Ansible
+
+Run every Ansible command from `ansible/`, where `ansible.cfg` lives. Install what the roles need once (`ansible-galaxy install -r requirements.yml`), create `.vault_pass` (the lab password is `labpassword`; the file is gitignored), then `ansible-playbook playbooks/base.yml` configures the VMs Terraform built. `tests/ansible-static.sh` is the lint and syntax gate the CI workflow runs.
+
 Example values in this repo use documentation addresses (`192.168.1.x`) and the hostname `hyperv-host`. Your own host, account and paths go in `terraform/environments/hyperv/terraform.tfvars` (gitignored); copy them from `terraform.tfvars.example`.
 
 ## License

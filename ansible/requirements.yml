@@ -1,0 +1,22 @@
+---
+# ansible/requirements.yml — everything the project needs from Ansible Galaxy.
+# Install both sections with:   ansible-galaxy install -r requirements.yml
+#
+# Collections accept version ranges. ansible-core ships only ansible.builtin;
+# the roles here use modules from these collections.
+collections:
+  - name: ansible.posix            # authorized_key, sysctl, firewalld, profile_tasks callback
+    version: ">=2.0.0"
+  - name: community.general        # ufw
+    version: ">=12.0.0"
+  - name: community.hashi_vault    # HashiCorp Vault lookups (Vault guide)
+    version: ">=7.0.0"
+  - name: ansible.windows          # win_* modules (Windows module; no lab VM yet)
+    version: ">=3.0.0"
+
+# Galaxy ROLES take an exact tag, branch or commit — never a range such as
+# ">=7.0.0,<9.0.0" (that is collection syntax and ansible-galaxy rejects it).
+# Installed into galaxy_roles/ (see roles_path in ansible.cfg).
+roles:
+  - name: geerlingguy.docker
+    version: "8.0.0"

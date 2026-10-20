@@ -1,0 +1,6 @@
+---
+# ansible/site.yml — the whole estate in one run. Each playbook also runs on
+# its own (ansible-playbook playbooks/base.yml); this file is what a pipeline
+# or a "converge everything" habit calls.
+- name: Linux baseline
+  ansible.builtin.import_playbook: playbooks/base.yml

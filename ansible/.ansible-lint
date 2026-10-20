@@ -1,0 +1,9 @@
+---
+# ansible-lint configuration. "moderate" is the profile a team project should
+# pass; "production" adds metadata and naming rules worth reading about once
+# the roles are stable.
+profile: moderate
+
+exclude_paths:
+  - galaxy_roles/     # third-party roles are linted by their authors
+  - .ansible/
