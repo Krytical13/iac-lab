@@ -1,0 +1,27 @@
+# Terraform: state, plans, provider cache, real variable values
+*.tfvars
+!*.tfvars.example
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+tf.log
+
+# Images and seeds are built locally, never committed
+*.iso
+*.vhdx
+*.img
+*.qcow2
+
+# Written by Terraform from the VMs' real addresses
+ansible/inventories/hyperv-lab/hosts.yml
+
+# Per-machine values for the host tests (see tests/host.env.example)
+tests/host.env
+
+# Keys and local noise
+*.pem
+*.key
+.DS_Store

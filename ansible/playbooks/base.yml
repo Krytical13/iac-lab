@@ -1,0 +1,9 @@
+---
+# playbooks/base.yml — Apply full baseline to Linux servers
+- name: Apply Linux baseline
+  hosts: linux
+  become: true
+  roles:
+    - role: base
+    - role: snmpd
+    - role: monitoring_agent

@@ -1,0 +1,27 @@
+---
+# Exercise 03 — Intro to Roles
+# Run: ansible-playbook -i localhost, -c local playbook.yml
+#
+# This playbook demonstrates role structure.
+# A role called "example" would live in roles/example/ with:
+#   tasks/main.yml    — what to do
+#   defaults/main.yml — default variable values
+#   handlers/main.yml — triggered actions
+#   templates/        — Jinja2 config files
+
+- name: Understanding roles
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Roles organize tasks into reusable packages
+      ansible.builtin.debug:
+        msg: >
+          Instead of one huge playbook, roles split tasks by purpose:
+          base (every server), nginx (web servers), snmpd (monitoring).
+
+    - name: Variable precedence
+      ansible.builtin.debug:
+        msg: >
+          Weakest to strongest:
+          role defaults → group_vars/all → group_vars/<group>
+          → host_vars/<host> → --extra-vars

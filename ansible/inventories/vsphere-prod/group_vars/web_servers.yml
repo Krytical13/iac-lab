@@ -1,0 +1,5 @@
+---
+# group_vars/web_servers.yml — Extra config for web servers
+extra_firewall_rules:
+  - { port: "80", proto: tcp, comment: "HTTP" }
+  - { port: "443", proto: tcp, comment: "HTTPS" }

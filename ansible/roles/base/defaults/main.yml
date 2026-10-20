@@ -1,0 +1,54 @@
+---
+# roles/base/defaults/main.yml
+
+# Packages
+base_packages:
+  - vim
+  - curl
+  - htop
+  - wget
+  - unzip
+  - git
+  - net-tools
+  - jq
+  - ca-certificates
+  - gnupg
+
+base_packages_remove:
+  - telnet
+  - rsh-client
+
+# Users
+admin_user: sysadmin
+admin_ssh_keys: []
+
+# Firewall — base rules for ALL servers
+base_firewall_rules:
+  - { port: "22", proto: tcp, comment: "SSH" }
+  - { port: "161", proto: udp, src: "{{ snmpd_allowed_network | default('any') }}", comment: "SNMP" }
+  - { port: "9100", proto: tcp, src: "{{ monitoring_network | default('any') }}", comment: "node_exporter" }
+
+# Extra firewall rules — override in group_vars or host_vars
+extra_firewall_rules: []
+
+# Sysctl kernel hardening
+sysctl_settings:
+  net.ipv4.ip_forward: "0"
+  net.ipv4.tcp_syncookies: "1"
+  net.ipv4.conf.all.accept_redirects: "0"
+  net.ipv4.conf.default.accept_redirects: "0"
+  net.ipv4.conf.all.send_redirects: "0"
+  net.ipv4.conf.all.accept_source_route: "0"
+  net.ipv4.conf.all.log_martians: "1"
+  net.ipv6.conf.all.accept_redirects: "0"
+  net.ipv6.conf.default.accept_redirects: "0"
+  kernel.randomize_va_space: "2"
+  kernel.kptr_restrict: "2"
+  kernel.dmesg_restrict: "1"
+
+# Chrony NTP
+chrony_ntp_servers:
+  - 0.pool.ntp.org
+  - 1.pool.ntp.org
+  - 2.pool.ntp.org
+  - 3.pool.ntp.org

@@ -1,0 +1,34 @@
+# {{ ansible_managed }}
+# SSH hardening configuration — deployed by Ansible base role
+
+Port 22
+AddressFamily any
+
+# Authentication
+PermitRootLogin no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+PermitEmptyPasswords no
+KbdInteractiveAuthentication no
+UsePAM yes
+
+# Allowed users
+AllowUsers {{ admin_user }}
+
+# Security
+X11Forwarding no
+AllowTcpForwarding no
+AllowAgentForwarding no
+MaxAuthTries 3
+MaxSessions 3
+LoginGraceTime 30
+ClientAliveInterval 300
+ClientAliveCountMax 2
+
+# Logging
+LogLevel VERBOSE
+SyslogFacility AUTH
+
+# SFTP
+Subsystem sftp /usr/lib/openssh/sftp-server

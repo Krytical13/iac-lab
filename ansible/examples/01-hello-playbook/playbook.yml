@@ -1,0 +1,18 @@
+---
+# Exercise 01 — Hello Playbook
+# Run: ansible-playbook -i localhost, -c local playbook.yml
+- name: Hello from Ansible
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Print a greeting
+      ansible.builtin.debug:
+        msg: "Hello from Ansible! This is your first playbook."
+
+    - name: Show the current date
+      ansible.builtin.command: date
+      register: result
+
+    - name: Display the date
+      ansible.builtin.debug:
+        var: result.stdout

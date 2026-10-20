@@ -1,0 +1,25 @@
+---
+# roles/base/tasks/main.yml — Master task list for Ubuntu baseline
+- name: Include package tasks
+  ansible.builtin.import_tasks: packages.yml
+  tags: [packages]
+
+- name: Include user tasks
+  ansible.builtin.import_tasks: users.yml
+  tags: [users]
+
+- name: Include SSH hardening tasks
+  ansible.builtin.import_tasks: ssh.yml
+  tags: [ssh]
+
+- name: Include chrony time sync tasks
+  ansible.builtin.import_tasks: chrony.yml
+  tags: [chrony]
+
+- name: Include sysctl kernel hardening tasks
+  ansible.builtin.import_tasks: sysctl.yml
+  tags: [sysctl]
+
+- name: Include firewall tasks
+  ansible.builtin.import_tasks: firewall.yml
+  tags: [firewall]

@@ -1,0 +1,6 @@
+---
+# host_vars/web-01.yml — Per-host overrides for web-01
+extra_firewall_rules:
+  - { port: "80", proto: tcp, comment: "HTTP" }
+  - { port: "443", proto: tcp, comment: "HTTPS" }
+  - { port: "8443", proto: tcp, comment: "Admin panel (web-01 only)" }

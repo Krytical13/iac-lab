@@ -1,0 +1,27 @@
+---
+# Exercise 04 — Handlers and Notify
+# Run: ansible-playbook -i localhost, -c local playbook.yml
+# Run TWICE — the second run should NOT trigger the handler
+
+- name: Handlers demo
+  hosts: all
+  gather_facts: false
+  vars:
+    config_content: "setting=value\nport=8080\n"
+
+  tasks:
+    - name: Create a config file (triggers handler on change)
+      ansible.builtin.copy:
+        content: "{{ config_content }}"
+        dest: /tmp/demo-app.conf
+        mode: "0644"
+      notify: Restart demo app
+
+    - name: This task always runs
+      ansible.builtin.debug:
+        msg: "Config deployed. Handler fires only if the file changed."
+
+  handlers:
+    - name: Restart demo app
+      ansible.builtin.debug:
+        msg: ">>> HANDLER FIRED: Would restart the app service here <<<"

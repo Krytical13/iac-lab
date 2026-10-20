@@ -1,0 +1,18 @@
+# _template.tf.example — Copy this file to create a new VM
+# 1. Copy: cp _template.tf.example my-server-01.tf
+# 2. Replace all CHANGEME values
+# 3. Run: terraform plan → terraform apply
+
+module "CHANGEME_module_name" {
+  source = "../../modules/hyperv-vm"
+
+  vm_name      = "CHANGEME-hostname"
+  source_vhdx  = "${var.vhdx_source_path}\\CHANGEME-image.vhdx"
+  memory_mb    = 2048      # 2048 for Linux, 4096 for Windows
+  cpu_count    = 2
+  switch_name  = hyperv_network_switch.lab_switch.name
+  vhd_path     = var.vhd_path
+  hyperv_host  = var.hyperv_host
+  hyperv_user  = var.hyperv_user
+  hyperv_password = var.hyperv_password
+}

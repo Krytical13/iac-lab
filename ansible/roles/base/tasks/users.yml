@@ -1,0 +1,41 @@
+---
+# roles/base/tasks/users.yml
+- name: Create admin group
+  ansible.builtin.group:
+    name: "{{ admin_user }}"
+    state: present
+  become: true
+
+- name: Create admin user
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    groups: sudo
+    shell: /bin/bash
+    create_home: true
+    state: present
+  become: true
+
+- name: Deploy SSH authorized keys
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ admin_ssh_keys }}"
+  become: true
+
+- name: Lock root password
+  ansible.builtin.user:
+    name: root
+    password_lock: true
+  become: true
+
+- name: Configure passwordless sudo
+  ansible.builtin.copy:
+    content: "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    dest: "/etc/sudoers.d/{{ admin_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+  become: true

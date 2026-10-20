@@ -1,0 +1,28 @@
+---
+# Exercise 02 — Variables and Jinja2 Templates
+# Run: ansible-playbook -i localhost, -c local playbook.yml
+- name: Variables and templates
+  hosts: all
+  gather_facts: true
+  vars:
+    app_name: "my-app"
+    app_port: 8080
+    features:
+      - logging
+      - metrics
+      - health-check
+
+  tasks:
+    - name: Show variable interpolation
+      ansible.builtin.debug:
+        msg: "Deploying {{ app_name }} on port {{ app_port }}"
+
+    - name: Loop through a list
+      ansible.builtin.debug:
+        msg: "Enabling feature: {{ item }}"
+      loop: "{{ features }}"
+
+    - name: Conditional based on OS
+      ansible.builtin.debug:
+        msg: "Running on {{ ansible_distribution }} {{ ansible_distribution_version }}"
+      when: ansible_os_family == "Debian"

@@ -1,0 +1,29 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  terraform:
+    name: terraform fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.6"
+
+      - name: terraform fmt -check
+        run: terraform fmt -check -recursive
+
+      # -backend=false: fetch providers and modules without touching any state backend.
+      # validate needs the providers' schemas, so init must run first.
+      - name: terraform init
+        working-directory: terraform/environments/hyperv
+        run: terraform init -backend=false -input=false
+
+      - name: terraform validate
+        working-directory: terraform/environments/hyperv
+        run: terraform validate
