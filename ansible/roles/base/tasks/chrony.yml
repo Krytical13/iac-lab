@@ -1,7 +1,7 @@
 ---
 # roles/base/tasks/chrony.yml
 - name: Install chrony
-  ansible.builtin.apt:
+  ansible.builtin.package:
     name: chrony
     state: present
   become: true
@@ -9,7 +9,7 @@
 - name: Deploy chrony configuration
   ansible.builtin.template:
     src: chrony.conf.j2
-    dest: /etc/chrony/chrony.conf
+    dest: "{{ base_chrony_conf }}"           # /etc/chrony/chrony.conf on Debian, /etc/chrony.conf on RedHat
     owner: root
     group: root
     mode: "0644"
@@ -18,7 +18,7 @@
 
 - name: Enable and start chrony
   ansible.builtin.systemd:
-    name: chrony
+    name: "{{ base_chrony_service }}"        # chrony on Debian, chronyd on RedHat
     enabled: true
     state: started
   become: true

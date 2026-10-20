@@ -1,44 +1,7 @@
 ---
 # roles/base/tasks/firewall.yml
-- name: Install UFW
-  ansible.builtin.apt:
-    name: ufw
-    state: present
-  become: true
-
-- name: Set default deny incoming
-  community.general.ufw:
-    direction: incoming
-    default: deny
-  become: true
-
-- name: Set default allow outgoing
-  community.general.ufw:
-    direction: outgoing
-    default: allow
-  become: true
-
-- name: Allow base firewall rules
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    src: "{{ item.src | default('any') }}"
-    comment: "{{ item.comment }}"
-  loop: "{{ base_firewall_rules }}"
-  become: true
-
-- name: Allow extra firewall rules
-  community.general.ufw:
-    rule: allow
-    port: "{{ item.port }}"
-    proto: "{{ item.proto }}"
-    src: "{{ item.src | default('any') }}"
-    comment: "{{ item.comment }}"
-  loop: "{{ extra_firewall_rules }}"
-  become: true
-
-- name: Enable UFW
-  community.general.ufw:
-    state: enabled
-  become: true
+# One rule list, two backends. base_firewall_rules (defaults) + extra_firewall_rules
+# (group_vars / host_vars) are applied by the task file for this family's backend:
+# firewall-ufw.yml on Debian, firewall-firewalld.yml on RedHat.
+- name: Apply firewall rules with {{ base_firewall_backend }}
+  ansible.builtin.include_tasks: "firewall-{{ base_firewall_backend }}.yml"

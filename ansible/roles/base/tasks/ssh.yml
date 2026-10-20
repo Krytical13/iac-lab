@@ -1,5 +1,7 @@
 ---
 # roles/base/tasks/ssh.yml
+# validate: sshd checks the rendered file BEFORE it replaces the live one, so a
+# typo in the template fails this task instead of leaving sshd unable to start.
 - name: Deploy hardened sshd_config
   ansible.builtin.template:
     src: sshd_config.j2

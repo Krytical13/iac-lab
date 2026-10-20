@@ -1,0 +1,19 @@
+---
+# roles/base/vars/Debian.yml — what differs on the Debian family (Ubuntu).
+# Loaded by tasks/main.yml with include_vars "{{ ansible_os_family }}.yml".
+base_packages_os:
+  - gnupg
+  - dnsutils
+base_packages_remove:
+  - telnet
+  - rsh-client
+base_auto_update_packages:
+  - unattended-upgrades
+  - apt-listchanges
+
+base_sudo_group: sudo
+base_sshd_service: ssh                       # Ubuntu's unit is ssh.service (sshd.service is only an alias)
+base_sftp_server: /usr/lib/openssh/sftp-server
+base_chrony_service: chrony
+base_chrony_conf: /etc/chrony/chrony.conf
+base_firewall_backend: ufw

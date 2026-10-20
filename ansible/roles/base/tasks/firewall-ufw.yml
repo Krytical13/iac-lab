@@ -1,0 +1,35 @@
+---
+# roles/base/tasks/firewall-ufw.yml — Debian family. Default deny in, allow out,
+# then every rule in the list. ufw is enabled LAST, after the SSH rule exists.
+- name: Install UFW
+  ansible.builtin.package:
+    name: ufw
+    state: present
+  become: true
+
+- name: Set default deny incoming
+  community.general.ufw:
+    direction: incoming
+    default: deny
+  become: true
+
+- name: Set default allow outgoing
+  community.general.ufw:
+    direction: outgoing
+    default: allow
+  become: true
+
+- name: Allow firewall rules
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    src: "{{ item.src | default('any') }}"
+    comment: "{{ item.comment }}"
+  loop: "{{ base_firewall_rules + extra_firewall_rules }}"
+  become: true
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+  become: true

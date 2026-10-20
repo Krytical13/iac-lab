@@ -10,7 +10,8 @@
   ansible.builtin.user:
     name: "{{ admin_user }}"
     group: "{{ admin_user }}"
-    groups: sudo
+    groups: "{{ base_sudo_group }}"          # sudo on Debian, wheel on RedHat
+    append: true                             # never strip groups the user already has
     shell: /bin/bash
     create_home: true
     state: present

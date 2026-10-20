@@ -1,0 +1,38 @@
+---
+# roles/base/tasks/firewall-firewalld.yml — RedHat family. firewalld's default
+# zone (public) already drops unlisted inbound traffic, so there is no
+# "default deny" step. Every rule is written permanent AND immediate: permanent
+# alone survives a reload but does nothing now; immediate alone is gone after one.
+# A rule with a source becomes a rich rule; one without opens the port to anyone.
+- name: Install firewalld
+  ansible.builtin.package:
+    name: firewalld
+    state: present
+  become: true
+
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    enabled: true
+    state: started
+  become: true
+
+- name: Allow firewall rules from anywhere
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ base_firewall_rules + extra_firewall_rules }}"
+  when: (item.src | default('any')) == 'any'
+  become: true
+
+- name: Allow firewall rules from a source network
+  ansible.posix.firewalld:
+    rich_rule: 'rule family="ipv4" source address="{{ item.src }}" port port="{{ item.port }}" protocol="{{ item.proto }}" accept'
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ base_firewall_rules + extra_firewall_rules }}"
+  when: (item.src | default('any')) != 'any'
+  become: true

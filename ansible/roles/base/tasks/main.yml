@@ -1,5 +1,13 @@
 ---
-# roles/base/tasks/main.yml — Master task list for Ubuntu baseline
+# roles/base/tasks/main.yml — the Linux baseline, Debian and RedHat families.
+# The first task loads the per-family names (package, service, path, sudo group,
+# firewall backend) from vars/<os_family>.yml; every task file below uses those
+# variables instead of hardcoding Ubuntu. Each import carries a tag so a subset
+# can be run alone: --tags firewall, --tags ssh, ...
+- name: Load OS family variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  tags: [always]
+
 - name: Include package tasks
   ansible.builtin.import_tasks: packages.yml
   tags: [packages]

@@ -1,13 +1,14 @@
 ---
-# roles/base/handlers/main.yml
+# roles/base/handlers/main.yml — run once at the end of the play, only when a
+# task that notifies them reported "changed". Service names come from vars/.
 - name: Reload sshd
   ansible.builtin.systemd:
-    name: sshd
-    state: reloaded
+    name: "{{ base_sshd_service }}"          # ssh on Debian, sshd on RedHat
+    state: reloaded                          # re-reads the config; sshd keeps running throughout
   become: true
 
 - name: Restart chrony
   ansible.builtin.systemd:
-    name: chrony
+    name: "{{ base_chrony_service }}"
     state: restarted
   become: true

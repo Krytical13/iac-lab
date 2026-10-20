@@ -1,5 +1,7 @@
 # {{ ansible_managed }}
-# SSH hardening configuration — deployed by Ansible base role
+# SSH hardening configuration — deployed by the Ansible base role.
+# This file replaces the distribution's sshd_config, including its
+# "Include /etc/ssh/sshd_config.d/*.conf" line, so drop-ins no longer apply.
 
 Port 22
 AddressFamily any
@@ -31,4 +33,4 @@ LogLevel VERBOSE
 SyslogFacility AUTH
 
 # SFTP
-Subsystem sftp /usr/lib/openssh/sftp-server
+Subsystem sftp {{ base_sftp_server }}

@@ -1,0 +1,18 @@
+---
+# roles/base/vars/RedHat.yml — what differs on the RedHat family (Rocky, RHEL, Alma).
+# Loaded by tasks/main.yml with include_vars "{{ ansible_os_family }}.yml".
+base_packages_os:
+  - gnupg2
+  - bind-utils
+base_packages_remove:
+  - telnet
+  - rsh
+base_auto_update_packages:
+  - dnf-automatic
+
+base_sudo_group: wheel
+base_sshd_service: sshd
+base_sftp_server: /usr/libexec/openssh/sftp-server
+base_chrony_service: chronyd
+base_chrony_conf: /etc/chrony.conf
+base_firewall_backend: firewalld

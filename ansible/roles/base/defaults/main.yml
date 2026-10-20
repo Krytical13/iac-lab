@@ -1,7 +1,8 @@
 ---
-# roles/base/defaults/main.yml
+# roles/base/defaults/main.yml — the knobs. Override in group_vars or host_vars.
+# Per-family names (sudo group, service names, paths) are not here: see vars/.
 
-# Packages
+# Packages wanted on every server; vars/<os_family>.yml adds the family-specific ones.
 base_packages:
   - vim
   - curl
@@ -12,23 +13,20 @@ base_packages:
   - net-tools
   - jq
   - ca-certificates
-  - gnupg
-
-base_packages_remove:
-  - telnet
-  - rsh-client
 
 # Users
 admin_user: sysadmin
-admin_ssh_keys: []
+admin_ssh_keys: []        # the lab sets this in group_vars/linux/main.yml
 
-# Firewall — base rules for ALL servers
+# Firewall — rules for ALL servers. A rule without src is open to anyone.
+# The lab's group_vars set both networks from the lab_network Terraform wrote.
 base_firewall_rules:
   - { port: "22", proto: tcp, comment: "SSH" }
   - { port: "161", proto: udp, src: "{{ snmpd_allowed_network | default('any') }}", comment: "SNMP" }
   - { port: "9100", proto: tcp, src: "{{ monitoring_network | default('any') }}", comment: "node_exporter" }
 
-# Extra firewall rules — override in group_vars or host_vars
+# Extra rules for a group or a host. Ansible REPLACES a list variable, it does
+# not merge it, so host_vars that need the group's ports must repeat them.
 extra_firewall_rules: []
 
 # Sysctl kernel hardening

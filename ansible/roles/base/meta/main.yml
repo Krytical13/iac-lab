@@ -1,0 +1,15 @@
+---
+# roles/base/meta/main.yml — role metadata (what ansible-galaxy and ansible-lint read).
+galaxy_info:
+  role_name: base
+  author: iac-lab
+  description: Linux server baseline for Debian and RedHat families
+  license: MIT
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Ubuntu
+      versions: [noble]
+    - name: EL
+      versions: ["9"]
+
+dependencies: []

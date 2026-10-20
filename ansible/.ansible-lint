@@ -7,3 +7,10 @@ profile: moderate
 exclude_paths:
   - galaxy_roles/     # third-party roles are linted by their authors
   - .ansible/
+
+skip_list:
+  # admin_user, admin_ssh_keys, extra_firewall_rules, sysctl_settings,
+  # chrony_ntp_servers are deliberately shared across roles and inventories
+  # (snmpd reads admin_user, group_vars set the firewall lists), so they do not
+  # carry the base_ prefix the rule asks for. Role-private names do.
+  - var-naming[no-role-prefix]
