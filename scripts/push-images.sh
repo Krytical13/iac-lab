@@ -5,7 +5,7 @@
 #   e.g. scripts/push-images.sh admin@hyperv-host --image-root 'D:\HyperV' --key ~/.ssh/id_ed25519
 #
 # Copies DIR/*.vhdx to <ImageRoot>\Images\ and DIR/seeds/*.iso to <ImageRoot>\Images\seeds\
-# (the directories setup-winrm.ps1 created). A file whose size already matches on the
+# (the directories setup-winrm.ps1 created). A file whose SHA256 already matches on the
 # host is skipped, so re-running after a new seed only sends the new seed.
 # Needs OpenSSH Server on the host; Windows OpenSSH accepts forward slashes (D:/HyperV/Images).
 set -euo pipefail
@@ -31,8 +31,8 @@ SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=10)
 root_fwd="${IMAGE_ROOT//\\//}"
 root_fwd="${root_fwd%/}"
 
-remote_size() { # Windows path → size in bytes, or empty. PowerShell is passed base64-encoded so quoting survives.
-  local ps="(Get-Item '$1' -ErrorAction SilentlyContinue).Length"
+remote_sha256() { # Windows path → lowercase SHA256, or empty. PowerShell is passed base64-encoded so quoting survives.
+  local ps="(Get-FileHash -Algorithm SHA256 -Path '$1' -ErrorAction SilentlyContinue).Hash.ToLower()"
   ssh "${SSH_OPTS[@]}" "$TARGET" powershell -NoProfile -NonInteractive -EncodedCommand \
     "$(printf '%s' "$ps" | iconv -f UTF-8 -t UTF-16LE | base64 -w0)" 2>/dev/null | tr -d '\r\n'
 }
@@ -40,8 +40,8 @@ remote_size() { # Windows path → size in bytes, or empty. PowerShell is passed
 push() { # local file, remote subdirectory (Images or Images\seeds)
   local f="$1" sub="$2" name; name="$(basename "$f")"
   local win="$IMAGE_ROOT\\$sub\\$name"
-  local have; have="$(remote_size "$win")"
-  if [ "$have" = "$(stat -c %s "$f")" ]; then echo "have     $name"; return; fi
+  local have; have="$(remote_sha256 "$win")"
+  if [ -n "$have" ] && [ "$have" = "$(sha256sum "$f" | cut -d' ' -f1)" ]; then echo "have     $name"; return; fi
   echo "copy     $name ($(du -h "$f" | cut -f1))"
   scp -q "${SSH_OPTS[@]}" "$f" "$TARGET:$root_fwd/${sub//\\//}/$name"
 }

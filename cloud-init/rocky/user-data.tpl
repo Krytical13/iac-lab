@@ -21,4 +21,10 @@ packages:
   - hyperv-daemons
 
 runcmd:
-  - [systemctl, enable, --now, hypervkvpd.service]
+  # /dev/vmbus/hv_kvp existed before the package's udev rule did, so systemd never
+  # tagged the device and the daemon's start would fail with "Dependency failed".
+  # Replaying the add event applies the rule, which starts hypervkvpd (a static unit:
+  # the udev rule, not systemctl enable, is what starts it on every boot).
+  - [udevadm, trigger, --subsystem-match=misc, --action=add]
+  - [udevadm, settle]
+  - [systemctl, start, hypervkvpd.service]

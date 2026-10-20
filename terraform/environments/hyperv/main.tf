@@ -32,4 +32,20 @@ resource "hyperv_network_switch" "lab_switch" {
   switch_type         = "External"
   net_adapter_names   = [var.host_nic]
   allow_management_os = true
+
+  # Windows derives these from the physical adapter (bandwidth mode, 10 % reserve,
+  # VMMQ/vRSS). Leave them to Windows: without this, importing a switch made with
+  # New-VMSwitch plans a replacement because the provider's defaults differ.
+  lifecycle {
+    # Destroying the switch drops the host's network and moves its IP back to the
+    # physical adapter. `terraform destroy` therefore refuses until you remove this
+    # line; destroy VMs with -target (Module 05) instead.
+    prevent_destroy = true
+    ignore_changes = [
+      minimum_bandwidth_mode,
+      default_flow_minimum_bandwidth_absolute,
+      default_queue_vmmq_enabled,
+      default_queue_vrss_enabled,
+    ]
+  }
 }

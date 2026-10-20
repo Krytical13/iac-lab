@@ -24,12 +24,35 @@ resource "hyperv_machine_instance" "vm" {
   state                  = "Running"
 
   wait_for_state_timeout = 120
-  wait_for_ips_timeout   = 300
+  wait_for_ips_timeout   = 600 # first boot installs packages before the KVP daemon can report an IP: 3-5 min seen
+
+  # Client Hyper-V takes an "Automatic Checkpoint" every time a VM starts, which turns
+  # the disk into a .avhdx chain. Lab VMs are rebuilt from the golden image instead.
+  checkpoint_type = "Disabled"
+
+  # Hyper-V fills these blocks in on its own; naming them (with the provider's defaults)
+  # keeps a second `terraform plan` at "No changes" instead of trying to null them out.
+  vm_processor {}
 
   vm_firmware {
     # Off is simplest for cloud images; Ubuntu and Rocky also boot with Secure Boot
     # using the MicrosoftUEFICertificateAuthority template.
     enable_secure_boot = "Off"
+
+    # Disk first, then the seed ISO, then PXE: Hyper-V's default tries the network first.
+    boot_order {
+      boot_type           = "HardDiskDrive"
+      controller_number   = 0
+      controller_location = 0
+    }
+    boot_order {
+      boot_type           = "DvdDrive"
+      controller_number   = 0
+      controller_location = 1
+    }
+    boot_order {
+      boot_type = "NetworkAdapter"
+    }
   }
 
   hard_disk_drives {
@@ -43,6 +66,7 @@ resource "hyperv_machine_instance" "vm" {
     path                = var.seed_iso
     controller_number   = 0
     controller_location = 1
+    resource_pool_name  = "Primordial" # what Hyper-V reports back; omitted, every plan tries to clear it
   }
 
   network_adaptors {
