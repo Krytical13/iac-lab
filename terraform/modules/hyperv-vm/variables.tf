@@ -1,11 +1,16 @@
 # modules/hyperv-vm/variables.tf
 variable "vm_name" {
-  description = "Name of the VM"
+  description = "Name of the VM (also its hostname via cloud-init)"
   type        = string
 }
 
 variable "source_vhdx" {
-  description = "Full path to source VHDX golden image"
+  description = "Full host path to the golden VHDX this VM's disk is copied from"
+  type        = string
+}
+
+variable "seed_iso" {
+  description = "Full host path to this VM's cloud-init seed ISO (volume id cidata)"
   type        = string
 }
 
@@ -27,22 +32,11 @@ variable "switch_name" {
 }
 
 variable "vhd_path" {
-  description = "Path for VM disks on the host"
+  description = "Host directory for the VM's disk file"
   type        = string
 }
 
-variable "hyperv_host" {
-  description = "Windows host for remote provisioner"
+variable "vm_path" {
+  description = "Host directory for the VM's configuration, smart paging and checkpoint files"
   type        = string
-}
-
-variable "hyperv_user" {
-  description = "Windows admin user for remote provisioner"
-  type        = string
-}
-
-variable "hyperv_password" {
-  description = "Windows admin password for remote provisioner"
-  type        = string
-  sensitive   = true
 }

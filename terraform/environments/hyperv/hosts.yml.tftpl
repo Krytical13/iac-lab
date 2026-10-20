@@ -1,0 +1,15 @@
+---
+# Written by Terraform (terraform/environments/hyperv/inventory.tf) from the
+# addresses the VMs reported. Do not edit by hand; re-run terraform apply.
+all:
+  children:
+    linux:
+      hosts:
+%{ for name, ip in hosts ~}
+        ${name}:
+          ansible_host: ${ip}
+%{ endfor ~}
+      vars:
+        ansible_user: sysadmin
+        ansible_ssh_private_key_file: ~/.ssh/lab_key
+        ansible_python_interpreter: /usr/bin/python3

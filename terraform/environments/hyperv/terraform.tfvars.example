@@ -1,0 +1,14 @@
+# terraform.tfvars.example — copy to terraform.tfvars (gitignored) and fill in your host.
+#   cp terraform.tfvars.example terraform.tfvars
+
+hyperv_host     = "hyperv-host" # IPv4 address or DNS name of the Windows machine running Hyper-V
+hyperv_user     = "tfadmin"     # local administrator created for Terraform
+hyperv_password = "change-me"
+host_nic        = "Ethernet" # physical adapter from Get-NetAdapter; the External switch binds to it
+
+# Windows paths: HCL reads a single backslash as an escape (\n, \t ...), so every
+# backslash in a path is doubled. "C:\\HyperV\\Images" is the path C:\HyperV\Images.
+vhdx_source_path = "C:\\HyperV\\Images"
+seed_path        = "C:\\HyperV\\Images\\seeds"
+vhd_path         = "C:\\HyperV\\VHDs"
+vm_path          = "C:\\HyperV\\VMs"

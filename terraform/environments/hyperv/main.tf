@@ -1,28 +1,35 @@
-# main.tf — Hyper-V provider configuration
+# main.tf — provider configuration and the switch the lab VMs share
 terraform {
   required_version = ">= 1.5.0"
 
   required_providers {
     hyperv = {
       source  = "taliesins/hyperv"
-      version = "~> 1.2"
+      version = "~> 1.2.0" # patch releases only
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5"
     }
   }
 }
 
 provider "hyperv" {
-  user     = var.hyperv_user
-  password = var.hyperv_password
   host     = var.hyperv_host
   port     = var.hyperv_port
+  user     = var.hyperv_user
+  password = var.hyperv_password
   https    = true
-  insecure = true # Self-signed cert from setup-winrm.ps1
+  insecure = var.hyperv_insecure # self-signed certificate from setup-winrm.ps1
+  use_ntlm = true                # local account; Basic auth stays off on the host
   timeout  = "60s"
 }
 
-# Virtual switch — shared by all VMs
+# External switch: VMs sit on the same LAN as the host and get DHCP from your router.
+# allow_management_os keeps the host's own network on the adapter (through a vEthernet).
 resource "hyperv_network_switch" "lab_switch" {
   name                = var.switch_name
-  switch_type         = "Internal"
+  switch_type         = "External"
+  net_adapter_names   = [var.host_nic]
   allow_management_os = true
 }

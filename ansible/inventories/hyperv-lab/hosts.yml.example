@@ -1,28 +1,18 @@
 ---
-# inventories/hyperv-lab/hosts.yml — Lab inventory for Hyper-V VMs
+# ansible/inventories/hyperv-lab/hosts.yml.example — what Terraform writes to hosts.yml
+# after a successful apply (terraform/environments/hyperv/inventory.tf). The real
+# file is gitignored because it holds your VMs' addresses.
 all:
   children:
     linux:
       hosts:
         ubuntu-lab-01:
           ansible_host: 192.168.1.101
-          ansible_user: sysadmin
-          ansible_ssh_private_key_file: ~/.ssh/lab_key
         rocky-lab-01:
           ansible_host: 192.168.1.102
-          ansible_user: sysadmin
-          ansible_ssh_private_key_file: ~/.ssh/lab_key
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
-
-    windows:
-      hosts:
-        win-lab-01:
+        vault-lab-01:
           ansible_host: 192.168.1.103
       vars:
-        ansible_user: Administrator
-        ansible_password: "{{ vault_win_password }}"
-        ansible_connection: winrm
-        ansible_winrm_transport: ntlm
-        ansible_winrm_server_cert_validation: ignore
-        ansible_port: 5986
+        ansible_user: sysadmin
+        ansible_ssh_private_key_file: ~/.ssh/lab_key
+        ansible_python_interpreter: /usr/bin/python3
