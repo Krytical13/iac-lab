@@ -40,6 +40,20 @@ cat "$tmp/graph.txt"
 grep -q '@linux:' "$tmp/graph.txt" || { echo "FAIL: no linux group in the inventory"; fail=1; }
 grep -q 'WARNING' "$tmp/graph.txt" && { echo "FAIL: the inventory directory produced a warning"; fail=1; }
 
+step "vault: group_vars/linux/vault.yml decrypts with .vault_pass"
+# debug runs locally, so this works with the VMs off; ansible-inventory would
+# print the still-encrypted value.
+got=$(ansible -i "$inv" ubuntu-lab-01 -m ansible.builtin.debug -a var=vault_snmpd_community 2>/dev/null | grep -o '"vault_snmpd_community": "[^"]*"' | cut -d'"' -f4)
+echo "vault_snmpd_community = ${got:-<none>}"
+[ "$got" = "lab-snmp-ro" ] || { echo "FAIL: vault_snmpd_community did not decrypt to the lab value"; fail=1; }
+echo wrong > "$tmp/wrong_pass"
+err=$(ANSIBLE_VAULT_PASSWORD_FILE="$tmp/wrong_pass" ansible -i "$inv" ubuntu-lab-01 -m ansible.builtin.debug -a var=vault_snmpd_community 2>&1 || true)
+if echo "$err" | grep -qE 'Decryption failed|no vault secrets|Invalid vault password'; then
+  echo "wrong password -> $(echo "$err" | grep -oE 'Decryption failed[^.]*' | head -1)"
+else
+  echo "FAIL: a wrong vault password did not fail loudly"; fail=1
+fi
+
 step "ansible-playbook site.yml --syntax-check"
 ansible-playbook -i "$inv" site.yml --syntax-check 2>&1 | tail -3 || true
 ansible-playbook -i "$inv" site.yml --syntax-check >/dev/null 2>&1 || { echo "FAIL: syntax-check"; fail=1; }

@@ -1,0 +1,10 @@
+---
+# playbooks/docker.yml — Docker hosts, via the geerlingguy.docker Galaxy role
+# (pinned in requirements.yml). Which hosts are docker_servers is decided in
+# inventories/hyperv-lab/groups.yml; the role's settings are in
+# group_vars/docker_servers.yml.
+- name: Configure Docker hosts
+  hosts: docker_servers
+  become: true
+  roles:
+    - role: geerlingguy.docker

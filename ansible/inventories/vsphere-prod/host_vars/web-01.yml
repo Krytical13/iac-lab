@@ -1,6 +1,8 @@
 ---
-# host_vars/web-01.yml — Per-host overrides for web-01
+# host_vars/web-01.yml — Per-host overrides for web-01.
+# A host_vars list REPLACES the group's list (Ansible merges dicts, never lists),
+# so 80 and 443 from group_vars/web_servers.yml are repeated here on purpose.
 extra_firewall_rules:
   - { port: "80", proto: tcp, comment: "HTTP" }
   - { port: "443", proto: tcp, comment: "HTTPS" }
-  - { port: "8443", proto: tcp, comment: "Admin panel (web-01 only)" }
+  - { port: "8443", proto: tcp, src: "10.0.0.0/24", comment: "Admin panel (web-01 only, from the admin subnet)" }

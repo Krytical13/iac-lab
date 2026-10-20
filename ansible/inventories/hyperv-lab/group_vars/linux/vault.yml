@@ -1,0 +1,13 @@
+---
+# inventories/hyperv-lab/group_vars/linux/vault.yml — values that must not sit
+# in the repo in clear text. This one is encrypted with the LAB vault password
+# ("labpassword", printed in the guide), so it demonstrates the mechanism rather
+# than protecting anything: Module 06 rotates it with ansible-vault encrypt_string.
+# Ansible decrypts it at runtime with the password in .vault_pass (ansible.cfg).
+vault_snmpd_community: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          31393030313562626335623866663264353663373930346431623632633538316162326639363061
+          6230656330316464373830306130363738316638373931320a316135663837353436356663396363
+          38386339393035663661333636636432376238333962613666613738346537386434643139306132
+          6333356566376436310a656132346161326430323361386531383231363963653964323563356339
+          3439

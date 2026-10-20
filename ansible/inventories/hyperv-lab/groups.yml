@@ -1,0 +1,8 @@
+---
+# inventories/hyperv-lab/groups.yml — group memberships you own.
+# Terraform rewrites hosts.yml on every apply and never touches this file.
+# Both files are read because ansible.cfg points at the directory. A host
+# named here must exist in hosts.yml.
+docker_servers:
+  hosts:
+    ubuntu-lab-01:

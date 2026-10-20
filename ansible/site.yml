@@ -4,3 +4,6 @@
 # or a "converge everything" habit calls.
 - name: Linux baseline
   ansible.builtin.import_playbook: playbooks/base.yml
+
+- name: Docker hosts
+  ansible.builtin.import_playbook: playbooks/docker.yml

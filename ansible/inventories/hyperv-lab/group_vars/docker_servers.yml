@@ -1,0 +1,11 @@
+---
+# inventories/hyperv-lab/group_vars/docker_servers.yml — variables for the
+# geerlingguy.docker role (its README lists every knob; these are the two that matter here).
+docker_users:                        # added to the docker group: run docker without sudo
+  - sysadmin
+docker_install_compose_plugin: true
+
+# Nothing to add to the firewall for Docker itself: Docker writes its own
+# iptables rules AHEAD of ufw, so a published port (-p) is reachable whether
+# ufw allows it or not. Module 08 shows this and the DOCKER-USER chain.
+extra_firewall_rules: []

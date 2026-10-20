@@ -1,9 +1,11 @@
 ---
 # roles/base/tasks/firewall-firewalld.yml — RedHat family. firewalld's default
-# zone (public) already drops unlisted inbound traffic, so there is no
-# "default deny" step. Every rule is written permanent AND immediate: permanent
-# alone survives a reload but does nothing now; immediate alone is gone after one.
-# A rule with a source becomes a rich rule; one without opens the port to anyone.
+# zone (public) drops unlisted inbound traffic but ships with a few services
+# pre-allowed (ssh, dhcpv6-client, cockpit on Rocky); those are removed at the
+# end so the rule list is the whole policy, like ufw's default deny.
+# Every rule is written permanent AND immediate: permanent alone survives a
+# reload but does nothing now; immediate alone is gone after one. A rule with a
+# source becomes a rich rule; one without opens the port to anyone.
 - name: Install firewalld
   ansible.builtin.package:
     name: firewalld
@@ -35,4 +37,13 @@
     state: enabled
   loop: "{{ base_firewall_rules + extra_firewall_rules }}"
   when: (item.src | default('any')) != 'any'
+  become: true
+
+- name: Remove the zone's preset services (runs after the 22/tcp rule above, so no lockout)
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: disabled
+  loop: "{{ base_firewalld_preset_services }}"
   become: true

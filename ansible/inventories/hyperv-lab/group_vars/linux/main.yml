@@ -1,0 +1,13 @@
+---
+# inventories/hyperv-lab/group_vars/linux/main.yml — lab values for every Linux VM.
+# hosts.yml (written by Terraform) supplies ansible_host and lab_network;
+# vault.yml next to this file supplies the encrypted SNMP community string.
+
+# The base role puts this key on the admin user: the same lab key the seed ISO
+# installed, read from your control node so nothing personal lands in the repo.
+admin_ssh_keys:
+  - "{{ lookup('file', '~/.ssh/lab_key.pub') }}"
+
+# Who may reach SNMP (161/udp) and node_exporter (9100/tcp): the lab's /24.
+snmpd_allowed_network: "{{ lab_network }}"
+monitoring_network: "{{ lab_network }}"

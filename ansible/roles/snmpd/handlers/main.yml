@@ -1,0 +1,9 @@
+---
+# roles/snmpd/handlers/main.yml — a handler is a task that runs at the end of
+# the play, once, only if a task notified it. Handlers live in handlers/, not
+# in tasks/ ("listen" is a handler-only keyword).
+- name: Restart snmpd
+  ansible.builtin.systemd:
+    name: snmpd
+    state: restarted
+  become: true

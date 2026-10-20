@@ -1,0 +1,11 @@
+---
+# roles/monitoring_agent/defaults/main.yml
+# Version and checksum from https://github.com/prometheus/node_exporter/releases
+# (sha256sums.txt of the release). Bump both together.
+node_exporter_version: "1.12.1"
+node_exporter_checksum: "b51d8a76aa2a9156a55d501aca6276fae09e262259a5e4e831d2c2222f084e63"
+go_arch: amd64
+
+# Derived; the release archive unpacks to a directory of the same name without .tar.gz
+node_exporter_archive: "node_exporter-{{ node_exporter_version }}.linux-{{ go_arch }}"
+node_exporter_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_archive }}.tar.gz"

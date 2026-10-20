@@ -1,0 +1,4 @@
+---
+# roles/snmpd/vars/Debian.yml
+snmpd_packages:
+  - snmpd

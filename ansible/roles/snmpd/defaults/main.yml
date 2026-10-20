@@ -1,0 +1,6 @@
+---
+# roles/snmpd/defaults/main.yml
+# vault_snmpd_community has NO default on purpose: a missing community string
+# fails loudly ("'vault_snmpd_community' is undefined") instead of shipping "public".
+snmpd_allowed_network: any           # who may query; the lab sets it from lab_network
+snmpd_sys_location: Lab

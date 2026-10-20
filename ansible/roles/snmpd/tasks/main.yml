@@ -1,8 +1,14 @@
 ---
-# roles/snmpd/tasks/main.yml
+# roles/snmpd/tasks/main.yml — SNMP agent for PRTG (or any poller).
+# The firewall is NOT opened here: the base role's base_firewall_rules already
+# allow 161/udp from snmpd_allowed_network, on ufw and firewalld alike.
+- name: Load OS family variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  tags: [always]
+
 - name: Install snmpd
-  ansible.builtin.apt:
-    name: snmpd
+  ansible.builtin.package:
+    name: "{{ snmpd_packages }}"
     state: present
   become: true
 
@@ -16,26 +22,9 @@
   notify: Restart snmpd
   become: true
 
-- name: Allow SNMP through firewall
-  community.general.ufw:
-    rule: allow
-    port: "161"
-    proto: udp
-    src: "{{ snmpd_allowed_network }}"
-    comment: "SNMP from PRTG"
-  become: true
-
 - name: Enable and start snmpd
   ansible.builtin.systemd:
     name: snmpd
     enabled: true
     state: started
   become: true
-
-# Handler
-- name: Restart snmpd
-  ansible.builtin.systemd:
-    name: snmpd
-    state: restarted
-  become: true
-  listen: "Restart snmpd"

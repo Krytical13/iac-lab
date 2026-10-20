@@ -1,0 +1,5 @@
+---
+# roles/snmpd/vars/RedHat.yml — the agent is net-snmp; net-snmp-utils brings snmpwalk
+snmpd_packages:
+  - net-snmp
+  - net-snmp-utils

@@ -1,15 +1,16 @@
 # {{ ansible_managed }}
-# SNMP configuration — deployed by Ansible snmpd role
+# SNMP configuration — deployed by the Ansible snmpd role
 
-# Listen on all interfaces
+# Listen on all interfaces; the firewall decides who can reach it
 agentaddress udp:161
 
-# Read-only community string (from vault)
-rocommunity {{ vault_snmpd_community }} {{ snmpd_allowed_network }}
+# Read-only community string (from Ansible Vault), answered only for this source
+# ("default" is net-snmp's word for any source)
+rocommunity {{ vault_snmpd_community }} {{ 'default' if snmpd_allowed_network == 'any' else snmpd_allowed_network }}
 
 # System information
-sysLocation    Server Room
-sysContact     {{ admin_user }}@{{ ansible_domain | default('localhost') }}
+sysLocation    {{ snmpd_sys_location }}
+sysContact     {{ admin_user | default('sysadmin') }}@{{ ansible_domain | default('localhost', true) }}
 
 # Restrict views
 view systemonly included .1.3.6.1.2.1.1

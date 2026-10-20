@@ -1,7 +1,7 @@
----
 # ansible/inventories/hyperv-lab/hosts.yml.example — what Terraform writes to hosts.yml
 # after a successful apply (terraform/environments/hyperv/inventory.tf). The real
-# file is gitignored because it holds your VMs' addresses.
+# file is gitignored because it holds your VMs' addresses. ansible.cfg tells
+# Ansible to skip .example files when it reads this directory.
 all:
   children:
     linux:
@@ -16,3 +16,6 @@ all:
         ansible_user: sysadmin
         ansible_ssh_private_key_file: ~/.ssh/lab_key
         ansible_python_interpreter: /usr/bin/python3
+        # The /24 the VMs got their addresses from; group_vars use it as the
+        # source network for the SNMP and node_exporter firewall rules.
+        lab_network: 192.168.1.0/24

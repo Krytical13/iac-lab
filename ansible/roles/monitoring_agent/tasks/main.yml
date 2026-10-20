@@ -1,5 +1,8 @@
 ---
-# roles/monitoring_agent/tasks/main.yml
+# roles/monitoring_agent/tasks/main.yml — Prometheus node_exporter from the
+# GitHub release, checksum-verified, installed only when the wanted version is
+# not already there (so a second run changes nothing). The firewall is NOT
+# opened here: the base role allows 9100/tcp from monitoring_network.
 - name: Create node_exporter user
   ansible.builtin.user:
     name: node_exporter
@@ -8,24 +11,34 @@
     create_home: false
   become: true
 
-- name: Download and install node_exporter
+- name: Check the installed node_exporter version
+  ansible.builtin.command: /usr/local/bin/node_exporter --version
+  register: node_exporter_installed
+  changed_when: false
+  failed_when: false
+
+- name: Download and install node_exporter {{ node_exporter_version }}
+  when: >-
+    node_exporter_installed.rc != 0
+    or node_exporter_version not in (node_exporter_installed.stdout ~ node_exporter_installed.stderr)
+  become: true
   block:
     - name: Download node_exporter
       ansible.builtin.get_url:
-        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ go_arch }}.tar.gz"
-        dest: "/tmp/node_exporter-{{ node_exporter_version }}.tar.gz"
+        url: "{{ node_exporter_url }}"
+        dest: "/tmp/{{ node_exporter_archive }}.tar.gz"
         checksum: "sha256:{{ node_exporter_checksum }}"
-      register: download
+        mode: "0644"
 
     - name: Extract node_exporter
       ansible.builtin.unarchive:
-        src: "{{ download.dest }}"
+        src: "/tmp/{{ node_exporter_archive }}.tar.gz"
         dest: /tmp
         remote_src: true
 
     - name: Install node_exporter binary
       ansible.builtin.copy:
-        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-{{ go_arch }}/node_exporter"
+        src: "/tmp/{{ node_exporter_archive }}/node_exporter"
         dest: /usr/local/bin/node_exporter
         owner: root
         group: root
@@ -34,11 +47,13 @@
       notify: Restart node_exporter
 
   always:
-    - name: Clean up download
-      ansible.builtin.shell:
-        cmd: rm -rf /tmp/node_exporter-{{ node_exporter_version }}*
-      changed_when: false
-  become: true
+    - name: Clean up the download
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/tmp/{{ node_exporter_archive }}.tar.gz"
+        - "/tmp/{{ node_exporter_archive }}"
 
 - name: Deploy systemd service
   ansible.builtin.template:
@@ -56,13 +71,4 @@
     enabled: true
     state: started
     daemon_reload: true
-  become: true
-
-- name: Allow node_exporter through firewall
-  community.general.ufw:
-    rule: allow
-    port: "9100"
-    proto: tcp
-    src: "{{ monitoring_network | default('any') }}"
-    comment: "node_exporter metrics"
   become: true

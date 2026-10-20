@@ -1,0 +1,9 @@
+---
+# inventories/vsphere-prod/group_vars/all/main.yml — production example values.
+# The base role's firewall rules use these networks as sources.
+snmpd_allowed_network: 10.0.1.0/24     # the PRTG probe's subnet
+monitoring_network: 10.0.1.31/32       # mon-01, the Prometheus server
+
+# vault_snmpd_community belongs in group_vars/all/vault.yml next to this file,
+# created with:  ansible-vault encrypt_string '<community>' --name vault_snmpd_community
+# It is not shipped with this example.
