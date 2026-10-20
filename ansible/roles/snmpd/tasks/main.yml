@@ -28,3 +28,4 @@
     enabled: true
     state: started
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"   # unit missing until the package is really installed

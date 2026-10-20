@@ -16,11 +16,14 @@
   register: node_exporter_installed
   changed_when: false
   failed_when: false
+  check_mode: false                  # read-only, so it also runs under --check (the block below needs its result)
 
+# A dry run cannot download, so --check skips this block (ansible_check_mode).
 - name: Download and install node_exporter {{ node_exporter_version }}
   when: >-
-    node_exporter_installed.rc != 0
-    or node_exporter_version not in (node_exporter_installed.stdout ~ node_exporter_installed.stderr)
+    not ansible_check_mode
+    and (node_exporter_installed.rc != 0
+         or node_exporter_version not in (node_exporter_installed.stdout ~ node_exporter_installed.stderr))
   become: true
   block:
     - name: Download node_exporter
@@ -72,3 +75,4 @@
     state: started
     daemon_reload: true
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"   # unit file not really written under --check

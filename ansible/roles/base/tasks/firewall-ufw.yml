@@ -29,6 +29,17 @@
   loop: "{{ base_firewall_rules + extra_firewall_rules }}"
   become: true
 
+# ufw applies /etc/ufw/sysctl.conf every time it starts, and that file turns
+# log_martians OFF — undoing the sysctl hardening on the next boot and making
+# the second run report a change. Align it with sysctl_settings first.
+- name: Align ufw's own sysctl file with the kernel hardening
+  ansible.builtin.lineinfile:
+    path: /etc/ufw/sysctl.conf
+    regexp: '^#?net/ipv4/conf/{{ item }}/log_martians='
+    line: "net/ipv4/conf/{{ item }}/log_martians=1"
+  loop: [all, default]
+  become: true
+
 - name: Enable UFW
   community.general.ufw:
     state: enabled

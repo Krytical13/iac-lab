@@ -22,3 +22,6 @@
     enabled: true
     state: started
   become: true
+  # Under --check the package above is not really installed, so the unit does
+  # not exist yet; report that as "ignored" instead of failing the dry run.
+  ignore_errors: "{{ ansible_check_mode }}"

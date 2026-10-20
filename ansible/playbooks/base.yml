@@ -1,9 +1,15 @@
 ---
-# playbooks/base.yml — Apply full baseline to Linux servers
+# playbooks/base.yml — the Linux baseline: every server in the linux group gets
+# the base role, then the two monitoring roles. Each role carries a tag so one
+# can run alone (--tags snmpd re-deploys only SNMP); the base role's own task
+# files add finer tags (--tags firewall, --tags ssh, ...).
 - name: Apply Linux baseline
   hosts: linux
   become: true
   roles:
     - role: base
+      tags: [base]
     - role: snmpd
+      tags: [snmpd]
     - role: monitoring_agent
+      tags: [monitoring]

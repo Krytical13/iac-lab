@@ -12,3 +12,4 @@
     name: "{{ base_chrony_service }}"
     state: restarted
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"   # under --check the unit may not exist yet

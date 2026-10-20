@@ -55,3 +55,4 @@
     state: started
   become: true
   when: ansible_os_family == "RedHat"
+  ignore_errors: "{{ ansible_check_mode }}"   # unit missing until the package is really installed

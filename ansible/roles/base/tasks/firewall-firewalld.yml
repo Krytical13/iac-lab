@@ -6,6 +6,8 @@
 # Every rule is written permanent AND immediate: permanent alone survives a
 # reload but does nothing now; immediate alone is gone after one. A rule with a
 # source becomes a rich rule; one without opens the port to anyone.
+# Rocky's cloud image ships without firewalld, so under --check the module's
+# python bindings are missing: those tasks report "ignored" in a dry run.
 - name: Install firewalld
   ansible.builtin.package:
     name: firewalld
@@ -18,6 +20,7 @@
     enabled: true
     state: started
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Allow firewall rules from anywhere
   ansible.posix.firewalld:
@@ -28,6 +31,7 @@
   loop: "{{ base_firewall_rules + extra_firewall_rules }}"
   when: (item.src | default('any')) == 'any'
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Allow firewall rules from a source network
   ansible.posix.firewalld:
@@ -38,6 +42,7 @@
   loop: "{{ base_firewall_rules + extra_firewall_rules }}"
   when: (item.src | default('any')) != 'any'
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Remove the zone's preset services (runs after the 22/tcp rule above, so no lockout)
   ansible.posix.firewalld:
@@ -47,3 +52,4 @@
     state: disabled
   loop: "{{ base_firewalld_preset_services }}"
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
