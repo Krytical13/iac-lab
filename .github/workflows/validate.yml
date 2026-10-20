@@ -27,3 +27,22 @@ jobs:
       - name: terraform validate
         working-directory: terraform/environments/hyperv
         run: terraform validate
+
+  ansible:
+    name: ansible lint + syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install ansible-core and ansible-lint
+        run: pip install ansible-core ansible-lint
+
+      # The same gate as on a control node: installs the collections and the
+      # Galaxy role from requirements.yml, checks the inventory directory parses
+      # cleanly, syntax-checks site.yml and runs ansible-lint.
+      - name: tests/ansible-static.sh
+        run: tests/ansible-static.sh
