@@ -21,7 +21,10 @@ jq -r '.data.private_key' local/vault-server.json >local/vault-server.key
 chmod 600 local/vault-server.key local/vault-server.json
 echo "issued: $(openssl x509 -in local/vault-server.crt -noout -subject -enddate | tr '\n' ' ')"
 
-ssh_opts=(-i "$HOME/.ssh/lab_key" -o BatchMode=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR)
+# The private key travels over this connection, so the host must be verified:
+# Module 04 put the lab's host CA in known_hosts (@cert-authority), which makes
+# this pass without a prompt. Without it, accept the host's key once by hand.
+ssh_opts=(-i "$HOME/.ssh/lab_key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o LogLevel=ERROR)
 install_remote() { # install_remote <local file> <remote path> <mode>
   ssh "${ssh_opts[@]}" "$user@$ip" "sudo install -o vault -g vault -m $3 /dev/stdin $2" <"$1"
 }
