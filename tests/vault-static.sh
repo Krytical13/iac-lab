@@ -5,6 +5,8 @@
 # the real agent.hcl + cert.tpl, then checks the rendered certificate chains to
 # the root. Also: bash -n on the scripts, jq on the JSON role files, terraform
 # validate on the example. Needs: vault, jq, openssl (terraform optional).
+# -dev-no-store-token: a dev server otherwise overwrites ~/.vault-token, logging
+# you out of the lab Vault.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 fail=0
@@ -43,7 +45,7 @@ fi
 step "dev server: policies, SSH roles, PKI, AppRole, agent"
 export VAULT_ADDR=http://127.0.0.1:18200 VAULT_TOKEN=root
 unset VAULT_CACERT VAULT_SKIP_VERIFY
-vault server -dev -dev-root-token-id=root -dev-listen-address=127.0.0.1:18200 >"$tmp/dev.log" 2>&1 &
+vault server -dev -dev-root-token-id=root -dev-listen-address=127.0.0.1:18200 -dev-no-store-token >"$tmp/dev.log" 2>&1 &
 devpid=$!
 for _ in $(seq 20); do vault status >/dev/null 2>&1 && break; sleep 0.5; done
 vault status >/dev/null 2>&1 || { cat "$tmp/dev.log"; echo "FAIL: dev server did not start"; exit 1; }
