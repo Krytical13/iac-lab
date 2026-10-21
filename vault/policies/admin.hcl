@@ -59,6 +59,13 @@ path "sys/storage/raft/*" {
   capabilities = ["read", "update", "sudo"]
 }
 
+# Root-token recovery (Module 09's capstone). Not an unauthenticated path in
+# Vault 2.x: the operator's token must be allowed here AND a quorum of unseal
+# keys is still required. Without this line the drill fails with 403.
+path "sys/generate-root/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
 # Health, metrics, seal status
 path "sys/health" {
   capabilities = ["read", "sudo"]

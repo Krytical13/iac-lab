@@ -23,13 +23,16 @@ ephemeral "vault_kv_secret_v2" "snmpd" {
 }
 
 # A write-only argument (data_json_wo) sends the value to Vault and stores only
-# the version number in state. The result is a second secret whose value never
-# touched terraform.tfstate.
+# the version number in state. disable_read matters as much: without it the
+# resource reads the secret back after writing and stores THAT in state, which
+# undoes the point. With both, a second secret exists whose value never touched
+# terraform.tfstate.
 resource "vault_kv_secret_v2" "copy" {
   mount                = "secret"
   name                 = "homelab/snmpd-copy"
   data_json_wo         = jsonencode({ community = ephemeral.vault_kv_secret_v2.snmpd.data["community"] })
   data_json_wo_version = 1 # bump to re-send a changed value
+  disable_read         = true
 }
 
 # The same idea for the lab's root module (terraform/environments/hyperv), not
