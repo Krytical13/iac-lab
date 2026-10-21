@@ -25,7 +25,7 @@
     port: "{{ item.port }}"
     proto: "{{ item.proto }}"
     src: "{{ item.src | default('any') }}"
-    comment: "{{ item.comment }}"
+    comment: "{{ item.comment | default('') }}"
   loop: "{{ base_firewall_rules + extra_firewall_rules }}"
   become: true
 
