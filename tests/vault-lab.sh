@@ -23,7 +23,7 @@ export VAULT_CACERT=${VAULT_CACERT:-$PWD/vault/local/root_ca.crt}
 [ -r "$VAULT_CACERT" ] || die "no CA at $VAULT_CACERT (Module 05 writes vault/local/root_ca.crt)"
 [ -n "${VAULT_ADDR:-}" ] || die "VAULT_ADDR is not set"
 vault_ip=$(echo "$VAULT_ADDR" | sed -E 's#https?://([^:/]+).*#\1#')
-ip_of() { ansible-inventory -i ansible/inventories/hyperv-lab --host "$1" | jq -r .ansible_host; }
+ip_of() { (cd ansible && ansible-inventory --host "$1" | jq -r .ansible_host); }   # from ansible/, so ansible.cfg applies
 hosts="ubuntu-lab-01 rocky-lab-01 vault-lab-01"
 sshq() { ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "$@"; }
 
