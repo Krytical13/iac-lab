@@ -7,6 +7,9 @@ profile: moderate
 exclude_paths:
   - galaxy_roles/     # third-party roles are linted by their authors
   - .ansible/
+  # Written by the Vault guide (Module 04) with your SSH CA public key on one
+  # 700-character line; gitignored, and not something to hand-format.
+  - inventories/hyperv-lab/group_vars/linux/ssh_ca.yml
 
 skip_list:
   # admin_user, admin_ssh_keys, extra_firewall_rules, sysctl_settings,
