@@ -43,9 +43,10 @@ grep -q 'WARNING' "$tmp/graph.txt" && { echo "FAIL: the inventory directory prod
 step "vault: group_vars/linux/vault.yml decrypts with .vault_pass"
 # debug runs locally, so this works with the VMs off; ansible-inventory would
 # print the still-encrypted value.
+# Any value is fine: Module 06 of the Ansible guide has you rotate it and commit the new block.
 got=$(ansible -i "$inv" ubuntu-lab-01 -m ansible.builtin.debug -a var=vault_snmpd_community 2>/dev/null | grep -o '"vault_snmpd_community": "[^"]*"' | cut -d'"' -f4)
-echo "vault_snmpd_community = ${got:-<none>}"
-[ "$got" = "lab-snmp-ro" ] || { echo "FAIL: vault_snmpd_community did not decrypt to the lab value"; fail=1; }
+echo "vault_snmpd_community = ${got:+(decrypted, ${#got} characters)}${got:-<none>}"
+[ -n "$got" ] && [ "$got" != "VARIABLE IS NOT DEFINED!" ] || { echo "FAIL: vault_snmpd_community did not decrypt"; fail=1; }
 echo wrong > "$tmp/wrong_pass"
 err=$(ANSIBLE_VAULT_PASSWORD_FILE="$tmp/wrong_pass" ansible -i "$inv" ubuntu-lab-01 -m ansible.builtin.debug -a var=vault_snmpd_community 2>&1 || true)
 if echo "$err" | grep -qE 'Decryption failed|no vault secrets|Invalid vault password'; then
