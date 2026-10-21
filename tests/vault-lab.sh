@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # End-to-end check of the Vault guide against the running lab, in guide order.
-# Needs: the lab up, Modules 01–09 done, VAULT_ADDR, VAULT_CACERT=vault/local/root_ca.crt
+# Needs: the lab up, Modules 01–09 done, snmpwalk, VAULT_ADDR, VAULT_CACERT=vault/local/root_ca.crt
 # (or run from the repo with that file present), and the userpass admin's token in
 # ~/.vault-token (vault login -method=userpass username=labadmin) or VAULT_TOKEN.
 # Never uses root: every call must work under the admin policy.
 # Checks, stopping at the first failure:
 #   1. vault status: unsealed; the token's policies include admin, not root
-#   2. KV: secret/homelab/snmpd holds the lab community string
+#   2. KV: secret/homelab/snmpd holds the community string the VMs' snmpd answer to (whatever it is now)
 #   3. policies admin/automation/backup exist; AppRole login with vault/local/agent/{role-id,secret-id}
 #   4. SSH user certs: a fresh key is refused, then accepted on all three VMs once signed
 #   5. SSH host certs: a known_hosts with only the @cert-authority line connects without prompting
@@ -19,6 +19,9 @@ cd "$(dirname "$0")/.." || exit 2
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 die() { echo "FAIL: $*"; echo "vault-lab: FAIL"; exit 1; }
 ok() { echo "ok   $*"; }
+# A leftover VAULT_SKIP_VERIFY=true (Module 01) would make every check below pass without
+# verifying the server; this test is about the lab root CA being the only trust.
+unset VAULT_SKIP_VERIFY
 export VAULT_CACERT=${VAULT_CACERT:-$PWD/vault/local/root_ca.crt}
 [ -r "$VAULT_CACERT" ] || die "no CA at $VAULT_CACERT (Module 05 writes vault/local/root_ca.crt)"
 [ -n "${VAULT_ADDR:-}" ] || die "VAULT_ADDR is not set"
@@ -35,10 +38,12 @@ case "$pols" in *admin*) ;; *) die "token policies are [$pols], expected the adm
 case "$pols" in *root*) die "token is root; the guide works as labadmin from Module 03 on" ;; esac
 ok "vault status unsealed; token policies [$pols]"
 
-# 2. KV
+# 2. KV: the value in Vault is the one the hosts use (Module 10 rotates it; the test must not care which)
 c=$(vault kv get -field=community secret/homelab/snmpd 2>&1) || die "kv get secret/homelab/snmpd: $c"
-[ "$c" = "lab-snmp-ro" ] || die "secret/homelab/snmpd community is '$c' (expected lab-snmp-ro)"
-ok "kv get secret/homelab/snmpd -> community=$c"
+[ -n "$c" ] || die "secret/homelab/snmpd has an empty community"
+got=$(snmpwalk -v2c -c "$c" -t 3 -r 1 "$(ip_of ubuntu-lab-01)" 1.3.6.1.2.1.1.5 2>&1 | head -1)
+case "$got" in *"STRING: ubuntu-lab-01"*) ok "kv get secret/homelab/snmpd -> community=$c, and ubuntu-lab-01's snmpd answers to it" ;;
+  *) die "snmpd on ubuntu-lab-01 does not answer to the community in Vault ('$c'): $got" ;; esac
 
 # 3. policies and AppRole
 for p in admin automation backup; do vault policy read "$p" >/dev/null 2>&1 || die "policy $p missing"; done
@@ -85,7 +90,7 @@ ok "audit log records requests; raft snapshot $(stat -c %s "$tmp/snap") bytes"
 
 # 8. Ansible lookup through hvac
 got=$(cd ansible && ansible vault-lab-01 -m ansible.builtin.debug -a "msg={{ lookup('community.hashi_vault.vault_kv2_get', 'homelab/snmpd', engine_mount_point='secret').secret.community }}" 2>&1 | grep -o '"msg": "[^"]*"' | cut -d'"' -f4)
-[ "$got" = "lab-snmp-ro" ] || die "ansible lookup returned '$got'"
+[ "$got" = "$c" ] || die "ansible lookup returned '$got' (Vault holds '$c')"
 ok "community.hashi_vault lookup -> $got"
 
 # 9. the baseline is still idempotent with the CA trust in place
