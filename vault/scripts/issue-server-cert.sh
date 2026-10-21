@@ -7,6 +7,7 @@
 # IP SANs, installs certificate+chain, key and the root CA under /opt/vault/tls/
 # on the server, and restarts Vault — which comes back SEALED. Unseal it after.
 set -euo pipefail
+umask 077   # the files below hold the server's private key
 
 ip=${1:?usage: $0 <vault-server-ip> [ssh-user]}
 user=${2:-sysadmin}
