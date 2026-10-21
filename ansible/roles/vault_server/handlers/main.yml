@@ -1,0 +1,10 @@
+---
+# roles/vault_server/handlers/main.yml
+# A restart SEALS Vault: after any run that changes vault.hcl, an operator has
+# to unseal again (Module 09's drill). That is by design, not a bug.
+- name: Restart vault
+  ansible.builtin.systemd:
+    name: vault
+    state: restarted
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"   # under --check the unit may not exist yet

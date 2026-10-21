@@ -1,5 +1,18 @@
 ---
 # roles/base/tasks/ssh.yml
+# The CA file is written BEFORE the config that references it, so sshd's
+# validation below never sees a TrustedUserCAKeys line pointing at nothing.
+- name: Deploy the SSH user CA public keys
+  ansible.builtin.copy:
+    content: "{{ ssh_trusted_user_ca_keys | join('\n') }}\n"
+    dest: /etc/ssh/trusted-user-ca-keys.pem
+    owner: root
+    group: root
+    mode: "0644"
+  when: ssh_trusted_user_ca_keys | length > 0
+  notify: Reload sshd
+  become: true
+
 # validate: sshd checks the rendered file BEFORE it replaces the live one, so a
 # typo in the template fails this task instead of leaving sshd unable to start.
 - name: Deploy hardened sshd_config

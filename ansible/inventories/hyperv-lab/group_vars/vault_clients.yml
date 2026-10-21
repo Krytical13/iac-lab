@@ -1,0 +1,14 @@
+---
+# inventories/hyperv-lab/group_vars/vault_clients.yml — hosts whose secrets come
+# from HashiCorp Vault at run time instead of the ansible-vault file next door
+# (Vault guide, Module 10). The group is EMPTY in groups.yml until you add hosts
+# to it, so nothing here is evaluated during the Ansible guide.
+#
+# Needs on the control node: python3 hvac, VAULT_ADDR, VAULT_CACERT, and a token
+# in ~/.vault-token (vault login) or VAULT_TOKEN.
+
+# Two groups at the same depth both set vault_snmpd_community (linux via vault.yml);
+# a higher priority makes this group's value win.
+ansible_group_priority: 10
+
+vault_snmpd_community: "{{ lookup('community.hashi_vault.vault_kv2_get', 'homelab/snmpd', engine_mount_point='secret').secret.community }}"

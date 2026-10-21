@@ -1,0 +1,121 @@
+---
+# roles/vault_server/tasks/main.yml — install Vault from HashiCorp's apt
+# repository, write the production config (Raft + TLS listener), prepare the
+# directories, and ship the log rotation and snapshot timer. The role does NOT
+# initialise or unseal Vault: those are one-time operator steps the guide walks
+# through, and the unseal keys must never pass through Ansible.
+- name: This role is written for the Debian family
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] == "Debian"
+    fail_msg: >-
+      vault_server targets Ubuntu/Debian (the lab's Vault server is Ubuntu 24.04).
+      A RedHat host needs the rpm repository (https://rpm.releases.hashicorp.com) instead.
+    quiet: true
+
+- name: Install HashiCorp's signing key
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    mode: "0644"
+  become: true
+
+- name: Add the HashiCorp apt repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc]
+      https://apt.releases.hashicorp.com {{ ansible_facts['distribution_release'] }} main
+    filename: hashicorp
+    state: present
+  become: true
+
+# The package creates the vault user, /etc/vault.d/vault.hcl, the systemd unit
+# and a self-signed certificate pair in /opt/vault/tls/.
+- name: Install Vault
+  ansible.builtin.apt:
+    name: vault
+    state: present
+    update_cache: true
+  become: true
+
+- name: Create the data, log and backup directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: vault
+    group: vault
+    mode: "0750"
+  loop:
+    - "{{ vault_server_data_dir }}"
+    - "{{ vault_server_log_dir }}"
+    - "{{ vault_server_backup_dir }}"
+  become: true
+
+# The CLI (and curl) on this box read the certificate to verify the listener;
+# the private key stays readable by the vault user only.
+- name: Make the TLS certificate readable
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ vault_server_tls_dir }}", mode: "0755" }
+    - { path: "{{ vault_server_tls_dir }}/tls.crt", mode: "0644" }
+  become: true
+
+- name: Write the server configuration
+  ansible.builtin.template:
+    src: vault.hcl.j2
+    dest: /etc/vault.d/vault.hcl
+    owner: root
+    group: vault
+    mode: "0640"
+  notify: Restart vault
+  become: true
+
+- name: Rotate the audit log (Vault never rotates its own files)
+  ansible.builtin.copy:
+    src: logrotate-vault
+    dest: /etc/logrotate.d/vault
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Install the snapshot script
+  ansible.builtin.copy:
+    src: vault-snapshot.sh
+    dest: /usr/local/bin/vault-snapshot.sh
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Install the snapshot service and timer
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - vault-snapshot.service
+    - vault-snapshot.timer
+  become: true
+
+# The timer fires daily; the service skips itself until Module 09 of the guide
+# puts a backup token in /etc/vault.d/backup-token.
+- name: Enable the snapshot timer
+  ansible.builtin.systemd:
+    name: vault-snapshot.timer
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"   # under --check the unit may not exist yet
+
+- name: Enable and start Vault
+  ansible.builtin.systemd:
+    name: vault
+    enabled: true
+    state: started
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"

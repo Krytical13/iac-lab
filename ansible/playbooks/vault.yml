@@ -1,0 +1,11 @@
+---
+# playbooks/vault.yml — the Vault server(s). Which host that is lives in
+# inventories/hyperv-lab/groups.yml (vault_servers); the API port is opened by
+# the base role from group_vars/vault_servers.yml (extra_firewall_rules), so run
+# `playbooks/base.yml --tags firewall --limit vault_servers` first or alongside.
+- name: Install and configure Vault
+  hosts: vault_servers
+  become: true
+  roles:
+    - role: vault_server
+      tags: [vault]

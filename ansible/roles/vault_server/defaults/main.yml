@@ -1,0 +1,20 @@
+---
+# roles/vault_server/defaults/main.yml — a single-node Vault server with Raft
+# storage, as the Vault guide installs it on vault-lab-01. Override in
+# group_vars/vault_servers.yml.
+
+# Listener and the addresses Vault advertises. The lab has no DNS, so the API
+# address is the VM's own IP (what Terraform wrote into hosts.yml).
+vault_server_listen: "0.0.0.0:8200"
+vault_server_api_addr: "https://{{ ansible_host }}:8200"
+vault_server_cluster_addr: "https://{{ ansible_host }}:8201"
+vault_server_node_id: "{{ inventory_hostname }}"
+
+# Paths. The package creates /opt/vault and a self-signed pair in tls/; Module 05
+# of the guide replaces that pair with one issued by Vault's own PKI.
+vault_server_data_dir: /opt/vault/data
+vault_server_tls_dir: /opt/vault/tls
+vault_server_log_dir: /var/log/vault
+vault_server_backup_dir: /opt/vault/backups
+
+vault_server_ui: true

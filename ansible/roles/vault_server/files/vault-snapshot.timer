@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily HashiCorp Vault Raft snapshot
+
+[Timer]
+OnCalendar=daily
+# Run at the next boot if the machine was off at the scheduled time
+Persistent=true
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target

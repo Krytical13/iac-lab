@@ -6,3 +6,13 @@
 docker_servers:
   hosts:
     ubuntu-lab-01:
+
+# The Vault guide installs Vault here (playbooks/vault.yml).
+vault_servers:
+  hosts:
+    vault-lab-01:
+
+# Hosts that read their secrets from HashiCorp Vault instead of vault.yml.
+# Empty on purpose: Module 10 of the Vault guide adds the three VMs.
+vault_clients:
+  hosts: {}

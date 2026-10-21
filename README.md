@@ -10,12 +10,18 @@ A self-paced Infrastructure as Code lab: Terraform builds Linux VMs on a Hyper-V
 | `terraform/modules/hyperv-vm/` | Reusable module: copies a golden VHDX, attaches a cloud-init seed, waits for the IP |
 | `cloud-init/` | NoCloud user-data and meta-data templates for the seed ISOs |
 | `scripts/` | Host and control-node helpers (`setup-winrm.ps1`, image preparation, pushing images) |
-| `ansible/` | Roles, playbooks, inventories and examples for the Ansible guide |
+| `ansible/` | Roles, playbooks, inventories and examples for the Ansible guide (and the `vault_server` role) |
+| `vault/` | Policies, SSH role definitions, Vault Agent config and helper scripts for the Vault guide |
+| `terraform/examples/vault-secrets/` | A small root module showing a Vault data source next to an ephemeral resource |
 | `tests/` | Small shell and PowerShell checks the lab was verified with |
 
 ## Ansible
 
 Run every Ansible command from `ansible/`, where `ansible.cfg` lives. Install what the roles need once (`ansible-galaxy install -r requirements.yml`), create `.vault_pass` (the lab password is `labpassword`; the file is gitignored), then `ansible-playbook playbooks/base.yml` configures the VMs Terraform built. `tests/ansible-static.sh` is the lint and syntax gate the CI workflow runs.
+
+## Vault
+
+`ansible-playbook playbooks/vault.yml` installs Vault on the `vault_servers` host (open its API port first: `playbooks/base.yml --tags firewall --limit vault_servers`). Every policy, role definition and config the guide applies is under `vault/`; run the `vault` CLI from that directory on the control node with `VAULT_ADDR` pointing at the server. Generated material (CA certificates, agent credentials, `init.txt`, snapshots) goes to the gitignored `vault/local/`. `tests/vault-static.sh` smoke-tests all of it against a throwaway dev server; `tests/vault-lab.sh` checks the running lab.
 
 Example values in this repo use documentation addresses (`192.168.1.x`) and the hostname `hyperv-host`. Your own host, account and paths go in `terraform/environments/hyperv/terraform.tfvars` (gitignored); copy them from `terraform.tfvars.example`.
 

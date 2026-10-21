@@ -1,0 +1,8 @@
+---
+# inventories/hyperv-lab/group_vars/vault_servers.yml — the Vault API port, open
+# to the lab network only. The base role applies this list (Module 05 of the
+# Ansible guide: a list variable REPLACES the default, so repeat anything the
+# default had that you still want; the defaults here are the base rules, which
+# stay because base_firewall_rules is a separate variable).
+extra_firewall_rules:
+  - { port: "8200", proto: tcp, src: "{{ lab_network }}", comment: "Vault API" }

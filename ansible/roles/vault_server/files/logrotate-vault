@@ -1,0 +1,16 @@
+# /etc/logrotate.d/vault — deployed by the vault_server role.
+# Vault does not rotate its own audit log, and a full disk stops it answering
+# requests (an audit device that cannot write blocks everything, by design).
+/var/log/vault/*.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    # SIGHUP makes Vault close and reopen its log files; without it, it keeps
+    # writing to the rotated file.
+    postrotate
+        systemctl reload vault 2>/dev/null || true
+    endscript
+}

@@ -1,0 +1,10 @@
+{
+  "key_type": "ca",
+  "allow_user_certificates": true,
+  "allowed_users": "*",
+  "default_user": "sysadmin",
+  "allowed_extensions": "permit-pty,permit-port-forwarding",
+  "default_extensions": { "permit-pty": "" },
+  "ttl": "24h",
+  "max_ttl": "72h"
+}

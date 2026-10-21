@@ -1,0 +1,9 @@
+[Unit]
+Description=HashiCorp Vault Raft snapshot
+After=vault.service
+# Nothing to do until the operator has created the backup token (guide, Module 09)
+ConditionPathExists=/etc/vault.d/backup-token
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/vault-snapshot.sh

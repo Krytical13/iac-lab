@@ -1,0 +1,6 @@
+{
+  "key_type": "ca",
+  "allow_host_certificates": true,
+  "ttl": "87600h",
+  "max_ttl": "87600h"
+}

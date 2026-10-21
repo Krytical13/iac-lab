@@ -18,6 +18,13 @@ base_packages:
 admin_user: sysadmin
 admin_ssh_keys: []        # the lab sets this in group_vars/linux/main.yml
 
+# SSH certificates (Vault guide, Module 04). Both are off until you fill them in:
+# the public key(s) of a Vault SSH CA whose user certificates sshd should accept,
+# and the host certificate file sshd should present. The lab writes them into the
+# gitignored group_vars/linux/ssh_ca.yml once its Vault has a CA.
+ssh_trusted_user_ca_keys: []
+ssh_host_certificate: ""
+
 # Firewall — rules for ALL servers. A rule without src is open to anyone.
 # The lab's group_vars set both networks from the lab_network Terraform wrote.
 base_firewall_rules:

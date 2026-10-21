@@ -7,3 +7,6 @@
 
 - name: Docker hosts
   ansible.builtin.import_playbook: playbooks/docker.yml
+
+- name: Vault servers
+  ansible.builtin.import_playbook: playbooks/vault.yml

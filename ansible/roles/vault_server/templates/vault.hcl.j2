@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+# /etc/vault.d/vault.hcl — single-node production configuration (Vault guide, Module 01).
+
+ui = {{ vault_server_ui | lower }}
+
+# With Raft storage Vault 1.20+ refuses to start unless this is set explicitly
+# (true or false). Raft's own database does not benefit from mlock; true is the
+# documented choice. Swap stays off on this VM, so secrets are not paged to disk.
+disable_mlock = true
+
+# Integrated storage: no external dependency, supports snapshots, HA-capable.
+storage "raft" {
+  path    = "{{ vault_server_data_dir }}"
+  node_id = "{{ vault_server_node_id }}"
+}
+
+# TLS on every listener. The package's self-signed pair is here first; Module 05
+# replaces it with a certificate from Vault's own PKI (scripts/issue-server-cert.sh).
+listener "tcp" {
+  address       = "{{ vault_server_listen }}"
+  tls_cert_file = "{{ vault_server_tls_dir }}/tls.crt"
+  tls_key_file  = "{{ vault_server_tls_dir }}/tls.key"
+}
+
+api_addr     = "{{ vault_server_api_addr }}"
+cluster_addr = "{{ vault_server_cluster_addr }}"
+
+# Prometheus metrics at /v1/sys/metrics?format=prometheus (needs a token).
+telemetry {
+  prometheus_retention_time = "30s"
+  disable_hostname          = true
+}

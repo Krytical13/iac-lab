@@ -33,3 +33,8 @@ tests/host.env
 
 # ansible-lint / ansible-galaxy project cache
 ansible/.ansible/
+
+# Vault guide: everything generated at run time (CA certs, agent credentials,
+# the init output, snapshots) and the learner's own SSH CA settings
+vault/local/
+ansible/inventories/hyperv-lab/group_vars/linux/ssh_ca.yml
