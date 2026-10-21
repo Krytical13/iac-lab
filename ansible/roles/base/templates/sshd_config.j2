@@ -30,7 +30,6 @@ ClientAliveCountMax 2
 
 {% if ssh_trusted_user_ca_keys | length > 0 or ssh_host_certificate %}
 # Vault SSH CA (Vault guide, Module 04)
-{% endif %}
 {% if ssh_trusted_user_ca_keys | length > 0 %}
 TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem
 {% endif %}
@@ -38,6 +37,7 @@ TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem
 HostCertificate {{ ssh_host_certificate }}
 {% endif %}
 
+{% endif %}
 # Logging
 LogLevel VERBOSE
 SyslogFacility AUTH

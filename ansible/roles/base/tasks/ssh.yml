@@ -4,7 +4,8 @@
 # validation below never sees a TrustedUserCAKeys line pointing at nothing.
 - name: Deploy the SSH user CA public keys
   ansible.builtin.copy:
-    content: "{{ ssh_trusted_user_ca_keys | join('\n') }}\n"
+    # a single key may be given as a plain string instead of a one-item list
+    content: "{{ ([ssh_trusted_user_ca_keys] if ssh_trusted_user_ca_keys is string else ssh_trusted_user_ca_keys) | join('\n') }}\n"
     dest: /etc/ssh/trusted-user-ca-keys.pem
     owner: root
     group: root
