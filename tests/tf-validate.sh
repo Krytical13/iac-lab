@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# Format check for the whole repo, then init (no backend) + validate the Hyper-V root module.
+# Format check for the whole repo, then init (no backend) + validate one root module.
+#   tests/tf-validate.sh          the Hyper-V environment (the default)
+#   tests/tf-validate.sh azure    the Azure environment
 set -u
+env="${1:-hyperv}"
 cd "$(dirname "$0")/.."
+[ -d "terraform/environments/$env" ] || { echo "tf-validate: no environment named '$env'"; exit 1; }
 rc=0
 terraform fmt -check -recursive . || { echo "tf-validate: fmt FAIL"; rc=1; }
-cd terraform/environments/hyperv
+cd "terraform/environments/$env"
 terraform init -backend=false -input=false -no-color >/tmp/tf-init.$$ 2>&1 || { tail -n 8 /tmp/tf-init.$$; echo "tf-validate: init FAIL"; rc=1; }
 rm -f /tmp/tf-init.$$
 if [ "$rc" -eq 0 ]; then

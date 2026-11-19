@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars and put in your own values. Git ignores terraform.tfvars.
+
+# From: az account show --query id --output tsv
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# Who gets the budget alert.
+alert_emails = ["you@example.com"]
+
+# Optional. Defaults shown.
+# location            = "eastus"
+# resource_group_name = "rg-iac-lab"
+# budget_amount       = 1

@@ -34,6 +34,20 @@ jobs:
         working-directory: terraform/environments/hyperv
         run: terraform test
 
+      # The Azure environment gets the same three steps. Its provider is mocked
+      # too, so no Azure account, no sign-in and no secrets are involved.
+      - name: terraform init (azure)
+        working-directory: terraform/environments/azure
+        run: terraform init -backend=false -input=false
+
+      - name: terraform validate (azure)
+        working-directory: terraform/environments/azure
+        run: terraform validate
+
+      - name: terraform test (azure)
+        working-directory: terraform/environments/azure
+        run: terraform test
+
   ansible:
     name: ansible lint + syntax
     runs-on: ubuntu-latest

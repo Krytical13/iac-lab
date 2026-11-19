@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Unit tests for the Terraform code: terraform test in the Hyper-V root module.
+# Unit tests for the Terraform code: terraform test in one root module.
+#   tests/tf-test.sh          the Hyper-V environment (the default)
+#   tests/tf-test.sh azure    the Azure environment
 # Every provider is mocked in the test files, so this needs no Hyper-V host,
-# no credentials and no state, and it creates nothing.
+# no Azure account, no credentials and no state, and it creates nothing.
 set -u
-cd "$(dirname "$0")/../terraform/environments/hyperv"
+env="${1:-hyperv}"
+cd "$(dirname "$0")/../terraform/environments/$env" 2>/dev/null || { echo "tf-test: no environment named '$env'"; exit 1; }
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
 # init also installs the module copies that the test files load directly.
