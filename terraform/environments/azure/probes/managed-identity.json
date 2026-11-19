@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Probe for the lab guardrails. A user-assigned managed identity costs nothing and is on the allowed list, so validation passes in the lab region and the 'allowed locations' policy must refuse it anywhere else. Use it with 'az deployment group validate' only: validation checks the request and creates nothing."
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "id-guardrail-probe",
+      "location": "[parameters('location')]"
+    }
+  ]
+}
