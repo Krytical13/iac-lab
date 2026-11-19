@@ -12,8 +12,13 @@ A self-paced Infrastructure as Code lab: Terraform builds Linux VMs on a Hyper-V
 | `scripts/` | Host and control-node helpers (`setup-winrm.ps1`, image preparation, pushing images) |
 | `ansible/` | Roles, playbooks, inventories and examples for the Ansible guide (and the `vault_server` role) |
 | `vault/` | Policies, SSH role definitions, Vault Agent config and helper scripts for the Vault guide |
+| `terraform/environments/hyperv/tests/` | Unit tests for the module and the environment (`terraform test`, every provider mocked) |
 | `terraform/examples/vault-secrets/` | A small root module showing a Vault data source next to an ephemeral resource |
 | `tests/` | Small shell and PowerShell checks the lab was verified with |
+
+## Terraform tests
+
+`tests/tf-test.sh` runs `terraform test` in the Hyper-V root module. The test files mock every provider, so the tests need no Hyper-V host, no credentials and no state, and they create nothing: they run on any machine that has Terraform. The CI workflow runs them on every push and pull request, after `fmt` and `validate`.
 
 ## Ansible
 

@@ -6,7 +6,7 @@ on:
 
 jobs:
   terraform:
-    name: terraform fmt + validate
+    name: terraform fmt + validate + test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +27,12 @@ jobs:
       - name: terraform validate
         working-directory: terraform/environments/hyperv
         run: terraform validate
+
+      # Unit tests: every provider is mocked in tests/*.tftest.hcl, so this job
+      # needs no Hyper-V host and no secrets, and it creates nothing.
+      - name: terraform test
+        working-directory: terraform/environments/hyperv
+        run: terraform test
 
   ansible:
     name: ansible lint + syntax

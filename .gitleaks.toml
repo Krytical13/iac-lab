@@ -1,0 +1,13 @@
+# gitleaks configuration: the default rules, plus one allowlisted placeholder.
+#
+# The Terraform tests (terraform/environments/hyperv/tests/*.tftest.hcl) mock
+# every provider. Their variables block gives the root module's required
+# variables made-up values, and the default rules read the made-up password as
+# a real one. The string below is that placeholder, not a credential.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder password in the mocked Terraform tests"
+regexes = ['''^"not-a-real-password"$''']
