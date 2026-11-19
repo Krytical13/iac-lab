@@ -1,8 +1,7 @@
 # network.tf: the first resources that live inside the guardrails.
 #
-#   1. the resource provider Microsoft.Network, registered where a plan shows it
-#   2. one virtual network with two subnets, app and data
-#   3. one network security group on both subnets, with two rules
+#   1. one virtual network with two subnets, app and data
+#   2. one network security group on both subnets, with two rules
 #
 # The lab found no charge for any of this. What bills is what gets put into a
 # network later: machines, disks, public addresses, gateways.
@@ -16,22 +15,12 @@ locals {
   }
 }
 
-resource "azurerm_resource_provider_registration" "network" {
-  count = var.register_network_provider ? 1 : 0
-
-  name = "Microsoft.Network"
-}
-
 resource "azurerm_virtual_network" "lab" {
   name                = var.vnet_name
   resource_group_name = data.azurerm_resource_group.lab.name
   location            = data.azurerm_resource_group.lab.location
   address_space       = [var.address_space]
   tags                = var.tags
-
-  # Azure refuses a network on a subscription where the resource provider is
-  # not registered, so the registration comes first.
-  depends_on = [azurerm_resource_provider_registration.network]
 }
 
 resource "azurerm_subnet" "lab" {
@@ -52,8 +41,6 @@ resource "azurerm_network_security_group" "lab" {
   resource_group_name = data.azurerm_resource_group.lab.name
   location            = data.azurerm_resource_group.lab.location
   tags                = var.tags
-
-  depends_on = [azurerm_resource_provider_registration.network]
 }
 
 # A network security group with no rules of its own lets every address in the

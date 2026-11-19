@@ -3,10 +3,6 @@
 # From: az account show --query id --output tsv
 subscription_id = "00000000-0000-0000-0000-000000000000"
 
-# From: az provider show --namespace Microsoft.Network --query registrationState --output tsv
-# NotRegistered -> true. Registered -> false.
-register_network_provider = true
-
 # Optional. Defaults shown.
 # resource_group_name = "rg-iac-lab"
 # vnet_name           = "vnet-iac-lab"

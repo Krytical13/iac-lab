@@ -19,9 +19,12 @@ provider "azurerm" {
 
   subscription_id = var.subscription_id
 
-  # Same choice as in ../azure: the provider registers nothing by itself. The
-  # one resource provider this layer needs is in network.tf, where a plan
-  # shows it.
+  # Same choice as in ../azure: the provider registers nothing by itself. This
+  # layer needs one resource provider, Microsoft.Network. Registering it is a
+  # change to the subscription, so a person does it once, by hand:
+  #   az provider register --namespace Microsoft.Network --wait
+  # It is not a resource in this code on purpose. A resource would be removed
+  # again by a destroy, and a registration belongs to the whole subscription.
   resource_provider_registrations = "none"
 }
 

@@ -6,10 +6,7 @@ deployment group validate` sends the request as far as the policy check and
 stops there.
 
 Run them from `terraform/environments/azure-network`, signed in with `az login`,
-**after** `terraform apply`, not before. Azure registers the resource providers
-a template names when the template is deployed. The lab did not find out
-whether validation alone does that too. If it did, the registration in
-`network.tf` would find the work already done and fail.
+after `terraform apply`.
 
 | Command | Expected |
 |---------|----------|

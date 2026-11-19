@@ -17,15 +17,6 @@ variable "resource_group_name" {
   default     = "rg-iac-lab"
 }
 
-# No default on purpose. Registering a resource provider changes the
-# subscription, so the answer has to be written down by a person:
-#   az provider show --namespace Microsoft.Network --query registrationState --output tsv
-# NotRegistered -> true. Registered -> false.
-variable "register_network_provider" {
-  description = "Whether this code registers the resource provider Microsoft.Network on the subscription."
-  type        = bool
-}
-
 variable "vnet_name" {
   description = "Name of the virtual network."
   type        = string

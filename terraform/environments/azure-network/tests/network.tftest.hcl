@@ -27,8 +27,7 @@ mock_provider "azurerm" {
 }
 
 variables {
-  subscription_id           = "00000000-0000-0000-0000-000000000000"
-  register_network_provider = true
+  subscription_id = "00000000-0000-0000-0000-000000000000"
 }
 
 run "network_goes_into_the_group_it_reads" {
@@ -130,27 +129,5 @@ run "everything_else_inside_the_network_is_denied" {
   assert {
     condition     = azurerm_network_security_rule.allow_app_to_data.priority < azurerm_network_security_rule.deny_vnet_inbound.priority
     error_message = "The allow rule must be read before the deny rule: a lower priority number."
-  }
-}
-
-run "provider_is_registered_when_asked" {
-  command = apply
-
-  assert {
-    condition     = length(azurerm_resource_provider_registration.network) == 1 && azurerm_resource_provider_registration.network[0].name == "Microsoft.Network"
-    error_message = "With register_network_provider = true the code must register Microsoft.Network, and only that."
-  }
-}
-
-run "provider_is_left_alone_when_already_registered" {
-  command = apply
-
-  variables {
-    register_network_provider = false
-  }
-
-  assert {
-    condition     = length(azurerm_resource_provider_registration.network) == 0
-    error_message = "With register_network_provider = false the code must not touch the registration."
   }
 }
