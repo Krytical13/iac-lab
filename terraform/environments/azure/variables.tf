@@ -30,7 +30,7 @@ variable "allowed_locations" {
 }
 
 variable "allowed_resource_types" {
-  description = "The only resource types the policy lets into the resource group. All of these cost nothing."
+  description = "The only resource types the policy lets into the resource group. The lab found no charge for any of them; the budget is there in case that is wrong or changes."
   type        = list(string)
   default = [
     "Microsoft.ManagedIdentity/userAssignedIdentities",
