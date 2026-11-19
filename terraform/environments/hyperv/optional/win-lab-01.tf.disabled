@@ -1,9 +1,9 @@
-# optional/win-lab-01.tf.disabled — Windows Server 2022 lab VM (Phase 3, not part of the default apply)
+# optional/win-lab-01.tf.disabled — Windows Server 2022 lab VM (not part of the default apply)
 #
 # Terraform ignores files that don't end in .tf. This one needs a golden
 # win-server-2022.vhdx (evaluation ISO, WinRM enabled, sysprepped) and an
 # unattend answer file in place of the cloud-init seed; building that image is
-# the lab's Phase 3. When it exists: move this file up one directory, rename it
+# not part of the lab yet. When it exists: move this file up one directory, rename it
 # to win-lab-01.tf, point seed_iso at the unattend ISO, and run terraform plan.
 module "win_lab_01" {
   source = "../../modules/hyperv-vm"
