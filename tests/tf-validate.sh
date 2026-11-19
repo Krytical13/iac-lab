@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Format check for the whole repo, then init (no backend) + validate one root module.
-#   tests/tf-validate.sh          the Hyper-V environment (the default)
-#   tests/tf-validate.sh azure    the Azure environment
+#   tests/tf-validate.sh                  the Hyper-V environment (the default)
+#   tests/tf-validate.sh azure            the Azure guardrails
+#   tests/tf-validate.sh azure-network    the Azure network layer
 set -u
 env="${1:-hyperv}"
 cd "$(dirname "$0")/.."

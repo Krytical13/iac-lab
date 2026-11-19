@@ -48,6 +48,19 @@ jobs:
         working-directory: terraform/environments/azure
         run: terraform test
 
+      # The network layer is a second root module in the same subscription.
+      - name: terraform init (azure-network)
+        working-directory: terraform/environments/azure-network
+        run: terraform init -backend=false -input=false
+
+      - name: terraform validate (azure-network)
+        working-directory: terraform/environments/azure-network
+        run: terraform validate
+
+      - name: terraform test (azure-network)
+        working-directory: terraform/environments/azure-network
+        run: terraform test
+
   ansible:
     name: ansible lint + syntax
     runs-on: ubuntu-latest

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Probe for the lab guardrails, from inside the network layer. A public IP address is billed and is not on the allowed list, so the 'allowed resource types' policy must refuse it. Use it with 'az deployment group validate' only: validation checks the request and creates nothing."
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2023-11-01",
+      "name": "pip-guardrail-probe",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    }
+  ]
+}

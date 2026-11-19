@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Unit tests for the Terraform code: terraform test in one root module.
-#   tests/tf-test.sh          the Hyper-V environment (the default)
-#   tests/tf-test.sh azure    the Azure environment
+#   tests/tf-test.sh                  the Hyper-V environment (the default)
+#   tests/tf-test.sh azure            the Azure guardrails
+#   tests/tf-test.sh azure-network    the Azure network layer
 # Every provider is mocked in the test files, so this needs no Hyper-V host,
 # no Azure account, no credentials and no state, and it creates nothing.
 set -u

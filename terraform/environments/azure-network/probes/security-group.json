@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Control for the public IP probe. A network security group costs nothing and is on the allowed list, so validation passes. It shows that a Microsoft.Network request the guardrails allow gets through, so a refusal of the other probe comes from the policy. Use it with 'az deployment group validate' only: validation checks the request and creates nothing."
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-11-01",
+      "name": "nsg-guardrail-probe",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": []
+      }
+    }
+  ]
+}
