@@ -3,6 +3,7 @@
 #   tests/tf-validate.sh                  the Hyper-V environment (the default)
 #   tests/tf-validate.sh azure            the Azure guardrails
 #   tests/tf-validate.sh azure-network    the Azure network layer
+#   tests/tf-validate.sh azure-identity   the Azure identity layer
 set -u
 env="${1:-hyperv}"
 cd "$(dirname "$0")/.."

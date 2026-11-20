@@ -61,6 +61,19 @@ jobs:
         working-directory: terraform/environments/azure-network
         run: terraform test
 
+      # The identity layer is a third root module in the same subscription.
+      - name: terraform init (azure-identity)
+        working-directory: terraform/environments/azure-identity
+        run: terraform init -backend=false -input=false
+
+      - name: terraform validate (azure-identity)
+        working-directory: terraform/environments/azure-identity
+        run: terraform validate
+
+      - name: terraform test (azure-identity)
+        working-directory: terraform/environments/azure-identity
+        run: terraform test
+
   ansible:
     name: ansible lint + syntax
     runs-on: ubuntu-latest

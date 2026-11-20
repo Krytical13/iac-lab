@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Probe for the identity layer: a user-assigned managed identity with one federated credential, the two resource types this layer creates in the lab resource group. Use it with 'az deployment group validate' only: validation checks the request and creates nothing."
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "id-identity-probe",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials",
+      "apiVersion": "2023-01-31",
+      "name": "id-identity-probe/github-probe",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-identity-probe')]"
+      ],
+      "properties": {
+        "issuer": "https://token.actions.githubusercontent.com",
+        "subject": "repo:octo-org/octo-repo:environment:azure-lab",
+        "audiences": [
+          "api://AzureADTokenExchange"
+        ]
+      }
+    }
+  ]
+}

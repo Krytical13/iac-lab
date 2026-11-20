@@ -3,6 +3,7 @@
 #   tests/tf-test.sh                  the Hyper-V environment (the default)
 #   tests/tf-test.sh azure            the Azure guardrails
 #   tests/tf-test.sh azure-network    the Azure network layer
+#   tests/tf-test.sh azure-identity   the Azure identity layer
 # Every provider is mocked in the test files, so this needs no Hyper-V host,
 # no Azure account, no credentials and no state, and it creates nothing.
 set -u

@@ -15,6 +15,7 @@ A self-paced Infrastructure as Code lab: Terraform builds Linux VMs on a Hyper-V
 | `terraform/environments/hyperv/tests/` | Unit tests for the module and the environment (`terraform test`, every provider mocked) |
 | `terraform/environments/azure/` | Root module for an Azure subscription: one lab resource group with cost guardrails (two policy assignments and a budget), its own unit tests in `tests/`, and no-create probes in `probes/` |
 | `terraform/environments/azure-network/` | A second root module with its own state, inside that resource group: one virtual network, two private subnets and a network security group, with unit tests in `tests/` and no-create probes in `probes/` |
+| `terraform/environments/azure-identity/` | A third root module with its own state, inside the same resource group: one managed identity for a pipeline, the Reader role on the resource group, and a federated credential that trusts one GitHub repository in one environment, with unit tests in `tests/` and a no-create probe in `probes/` |
 | `terraform/examples/vault-secrets/` | A small root module showing a Vault data source next to an ephemeral resource |
 | `tests/` | Small shell and PowerShell checks the lab was verified with |
 
@@ -22,7 +23,7 @@ A self-paced Infrastructure as Code lab: Terraform builds Linux VMs on a Hyper-V
 
 `tests/tf-test.sh` runs `terraform test` in the Hyper-V root module. The test files mock every provider, so the tests need no Hyper-V host, no credentials and no state, and they create nothing: they run on any machine that has Terraform. The CI workflow runs them on every push and pull request, after `fmt` and `validate`.
 
-`tests/tf-test.sh azure` and `tests/tf-test.sh azure-network` do the same for the two Azure root modules. Those tests mock the `azurerm` provider, so they need no Azure account and no sign-in.
+`tests/tf-test.sh azure`, `tests/tf-test.sh azure-network` and `tests/tf-test.sh azure-identity` do the same for the three Azure root modules. Those tests mock the `azurerm` provider, so they need no Azure account and no sign-in.
 
 ## Ansible
 
