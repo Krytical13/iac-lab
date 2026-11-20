@@ -2,9 +2,9 @@
 #
 # The azurerm provider is mocked, so this needs no Azure account and no sign-in,
 # and it creates nothing. A mocked provider makes up values for anything Azure
-# would answer. Two kinds of values get a real shape below: the resource group
-# this layer reads, and the IDs that other resources check before they accept
-# them.
+# would answer. Two values get a real shape below: the resource group this layer
+# reads, and the ID of the identity, which the federated credential checks
+# before it accepts it.
 mock_provider "azurerm" {
   mock_data "azurerm_resource_group" {
     defaults = {
@@ -15,8 +15,7 @@ mock_provider "azurerm" {
 
   mock_resource "azurerm_user_assigned_identity" {
     defaults = {
-      id           = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-iac-lab/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-iac-lab-pipeline"
-      principal_id = "00000000-0000-0000-0000-000000000000"
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-iac-lab/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-iac-lab-pipeline"
     }
   }
 }
