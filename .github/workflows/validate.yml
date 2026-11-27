@@ -61,6 +61,12 @@ jobs:
         working-directory: terraform/environments/azure-network
         run: terraform test
 
+      # The azure-plan workflow plans this layer with import blocks and no
+      # state. This checks that the blocks still match the resources of the
+      # layer. It needs no account and no sign-in.
+      - name: import blocks for the pipeline (azure-network)
+        run: tests/tf-imports.sh
+
       # The identity layer is a third root module in the same subscription.
       - name: terraform init (azure-identity)
         working-directory: terraform/environments/azure-identity

@@ -1,0 +1,92 @@
+name: azure-plan
+
+# Signs in to Azure as the identity from terraform/environments/azure-identity
+# and compares the network layer with what is really there. It changes nothing:
+# the identity holds the Reader role on one resource group, and the job never
+# applies.
+#
+# It runs only when a person starts it: Actions > azure-plan > Run workflow.
+# A push or a pull request never starts it, so a fork cannot ask for a token.
+#
+# Before the first run, in the settings of the repository:
+#   1. Environments > New environment > azure-lab.
+#      Required reviewers: yourself. The job then waits until you approve it.
+#      Deployment branches: selected branches, main. No other branch can then
+#      run a job in this environment.
+#   2. Three secrets in that environment:
+#        AZURE_CLIENT_ID        terraform output -raw client_id    (azure-identity)
+#        AZURE_TENANT_ID        terraform output -raw tenant_id    (azure-identity)
+#        AZURE_SUBSCRIPTION_ID  az account show --query id --output tsv
+#      None of the three is a password. They are stored as secrets so that
+#      GitHub masks them in the log: the log of a public repository is public.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # the job may ask GitHub for the token that Azure exchanges
+
+jobs:
+  plan:
+    name: sign in, read, plan
+    runs-on: ubuntu-latest
+    # The federated credential names this environment. A job outside it gets a
+    # token with another subject, and Azure refuses the sign-in.
+    environment: azure-lab
+    env:
+      RESOURCE_GROUP: rg-iac-lab
+      # The azurerm provider signs in the same way, with a token of its own.
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_IN_AUTOMATION: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sign in to Azure with a token from GitHub
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Names and types only. A full listing would print resource IDs, and an
+      # error text names the identity, so only its code goes to the log.
+      - name: What the identity can see
+        run: |
+          az resource list --resource-group "$RESOURCE_GROUP" \
+            --query "sort_by([].{name:name, type:type}, &name)" --output table 2> list.txt \
+            || { grep -o -m1 -E 'AuthorizationFailed|ResourceGroupNotFound|SubscriptionNotFound' list.txt || echo "The listing failed."; exit 1; }
+
+      # Validation creates nothing, so this is safe even if it were allowed.
+      # A Reader may not ask for it. The error text names the identity, so only
+      # its code goes to the log.
+      - name: A change is refused
+        run: |
+          if az deployment group validate --resource-group "$RESOURCE_GROUP" \
+               --template-file terraform/environments/azure-network/probes/security-group.json \
+               --output none 2> refused.txt; then
+            echo "The identity was allowed to validate a deployment. It should hold the Reader role and nothing more."
+            exit 1
+          fi
+          grep -o -m1 'AuthorizationFailed' refused.txt || { echo "Refused, but not with AuthorizationFailed."; exit 1; }
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.6"
+          terraform_wrapper: false
+
+      # No state file here: pipeline/imports.tf tells Terraform which object in
+      # Azure belongs to which resource, and the plan compares them. The plan
+      # text stays on the runner. The log gets one line for each resource and
+      # the summary.
+      - name: Plan the network layer from an empty state
+        working-directory: terraform/environments/azure-network
+        run: |
+          cp pipeline/imports.tf imports.tf
+          terraform init -input=false -no-color > init.log 2>&1 || { tail -n 20 init.log; exit 1; }
+          terraform plan -input=false -no-color > plan.txt 2>&1 || { grep -E '^[│ ]*Error' plan.txt; echo "The plan failed."; exit 1; }
+          grep -E 'will be imported|will be created|will be destroyed|will be updated in-place|must be replaced|^Plan:|^No changes' plan.txt
+          grep -qx 'Plan: 8 to import, 0 to add, 0 to change, 0 to destroy.' plan.txt || { echo "The network in Azure is not what the code describes."; exit 1; }
