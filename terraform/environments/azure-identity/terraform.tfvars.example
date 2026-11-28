@@ -3,9 +3,12 @@
 # From: az account show --query id --output tsv
 subscription_id = "00000000-0000-0000-0000-000000000000"
 
-# The one repository whose workflows may sign in as the identity. Write it the
-# way GitHub shows it: owner/name.
-github_repository = "octo-org/octo-repo"
+# The one repository whose workflows may sign in as the identity, written the
+# way GitHub starts the subject of its tokens. Ask GitHub for yours:
+#   gh api repos/OWNER/NAME/actions/oidc/customization/sub --jq .sub_claim_prefix
+# The two numbers are the ID of the owner and the ID of the repository. A
+# repository created before 15 July 2026 may answer without them.
+github_subject_prefix = "repo:octo-org@123456/octo-repo@456789"
 
 # Optional. Defaults shown.
 # resource_group_name = "rg-iac-lab"
