@@ -53,11 +53,13 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Names and types only. A full listing would print resource IDs, and an
-      # error text names the identity, so only its code goes to the log.
+      # error text names the identity, so only its code goes to the log. The
+      # query renames type on the way: the table output of the Azure CLI leaves
+      # out a column that is called type.
       - name: What the identity can see
         run: |
           az resource list --resource-group "$RESOURCE_GROUP" \
-            --query "sort_by([].{name:name, type:type}, &name)" --output table 2> list.txt \
+            --query "sort_by([].{name:name, resourceType:type}, &name)" --output table 2> list.txt \
             || { grep -o -m1 -E 'AuthorizationFailed|ResourceGroupNotFound|SubscriptionNotFound' list.txt || echo "The listing failed."; exit 1; }
 
       # Validation creates nothing, so this is safe even if it were allowed.
