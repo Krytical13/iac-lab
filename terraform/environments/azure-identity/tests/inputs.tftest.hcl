@@ -16,8 +16,8 @@ mock_provider "azurerm" {
 }
 
 variables {
-  subscription_id   = "00000000-0000-0000-0000-000000000000"
-  github_repository = "octo-org/octo-repo"
+  subscription_id       = "00000000-0000-0000-0000-000000000000"
+  github_subject_prefix = "repo:octo-org@123456/octo-repo@456789"
 }
 
 run "rejects_a_subscription_name" {
@@ -34,30 +34,52 @@ run "rejects_a_repository_without_an_owner" {
   command = plan
 
   variables {
-    github_repository = "octo-repo"
+    github_subject_prefix = "repo:octo-repo@456789"
   }
 
-  expect_failures = [var.github_repository]
+  expect_failures = [var.github_subject_prefix]
 }
 
 run "rejects_a_wildcard_repository" {
   command = plan
 
   variables {
-    github_repository = "octo-org/*"
+    github_subject_prefix = "repo:octo-org/*"
   }
 
-  expect_failures = [var.github_repository]
+  expect_failures = [var.github_subject_prefix]
 }
 
 run "rejects_a_repository_url" {
   command = plan
 
   variables {
-    github_repository = "https://github.com/octo-org/octo-repo"
+    github_subject_prefix = "https://github.com/octo-org/octo-repo"
   }
 
-  expect_failures = [var.github_repository]
+  expect_failures = [var.github_subject_prefix]
+}
+
+# The two names alone are not what GitHub reports: its answer starts with repo:
+run "rejects_a_name_without_the_repo_prefix" {
+  command = plan
+
+  variables {
+    github_subject_prefix = "octo-org/octo-repo"
+  }
+
+  expect_failures = [var.github_subject_prefix]
+}
+
+# GitHub writes both IDs or none. One of the two is a copying mistake.
+run "rejects_a_prefix_with_one_id_missing" {
+  command = plan
+
+  variables {
+    github_subject_prefix = "repo:octo-org@123456/octo-repo"
+  }
+
+  expect_failures = [var.github_subject_prefix]
 }
 
 run "rejects_an_environment_with_a_space" {

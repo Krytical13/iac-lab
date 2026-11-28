@@ -24,17 +24,22 @@ variable "identity_name" {
 }
 
 # No default on purpose. Which repository may act as the identity is a decision,
-# not a setting to inherit from an example.
-variable "github_repository" {
-  description = "The one GitHub repository whose workflows may sign in as the identity, written owner/name."
+# not a setting to inherit from an example. And only GitHub knows how it names
+# that repository in a token: one created after 15 July 2026 gets the ID of its
+# owner and its own ID next to the two names, so that a name someone gives up
+# and another person takes does not carry the trust along. Ask GitHub and paste
+# the answer:
+#   gh api repos/OWNER/NAME/actions/oidc/customization/sub --jq .sub_claim_prefix
+variable "github_subject_prefix" {
+  description = "The one GitHub repository whose workflows may sign in as the identity, written the way GitHub starts the subject of its tokens."
   type        = string
 
   # A seat belt: Microsoft's page on federated credentials says wildcard
   # characters are not supported in any of their values, so a pattern such as
-  # octo-org/* cannot stand for many repositories.
+  # repo:octo-org/* cannot stand for many repositories.
   validation {
-    condition     = can(regex("^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$", var.github_repository))
-    error_message = "github_repository must be one repository written owner/name, for example octo-org/octo-repo. No URL, no wildcard."
+    condition     = can(regex("^repo:[A-Za-z0-9][A-Za-z0-9-]*(@[0-9]+/[A-Za-z0-9._-]+@[0-9]+|/[A-Za-z0-9._-]+)$", var.github_subject_prefix))
+    error_message = "github_subject_prefix must be one repository as GitHub writes it: repo:octo-org@123456/octo-repo@456789, or repo:octo-org/octo-repo for a repository that still goes by names only. No URL, no wildcard."
   }
 }
 

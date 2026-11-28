@@ -11,7 +11,8 @@ locals {
   # GitHub puts this string in the "sub" claim of the token it gives to a job
   # that runs in the named environment of the named repository. Azure accepts
   # a token only when its claim is the same string as the subject stored below.
-  github_subject = "repo:${var.github_repository}:environment:${var.github_environment}"
+  # The first part is GitHub's own wording for the repository (variables.tf).
+  github_subject = "${var.github_subject_prefix}:environment:${var.github_environment}"
 }
 
 resource "azurerm_user_assigned_identity" "pipeline" {

@@ -21,8 +21,8 @@ mock_provider "azurerm" {
 }
 
 variables {
-  subscription_id   = "00000000-0000-0000-0000-000000000000"
-  github_repository = "octo-org/octo-repo"
+  subscription_id       = "00000000-0000-0000-0000-000000000000"
+  github_subject_prefix = "repo:octo-org@123456/octo-repo@456789"
 }
 
 run "identity_goes_into_the_group_it_reads" {
@@ -77,7 +77,7 @@ run "credential_trusts_one_repository_in_one_environment" {
   command = apply
 
   assert {
-    condition     = azurerm_federated_identity_credential.github.subject == "repo:octo-org/octo-repo:environment:azure-lab"
+    condition     = azurerm_federated_identity_credential.github.subject == "repo:octo-org@123456/octo-repo@456789:environment:azure-lab"
     error_message = "The subject must name the repository and the environment, in the form GitHub puts in the token."
   }
 
@@ -110,12 +110,27 @@ run "another_environment_is_another_subject" {
   }
 
   assert {
-    condition     = azurerm_federated_identity_credential.github.subject == "repo:octo-org/octo-repo:environment:production"
+    condition     = azurerm_federated_identity_credential.github.subject == "repo:octo-org@123456/octo-repo@456789:environment:production"
     error_message = "The subject must follow var.github_environment."
   }
 
   assert {
     condition     = azurerm_federated_identity_credential.github.name == "github-production"
     error_message = "The name of the credential must say which environment it trusts."
+  }
+}
+
+# A repository created before 15 July 2026 may still go by its two names alone.
+# The layer stores whatever GitHub reports and adds nothing of its own.
+run "a_repository_without_ids_keeps_the_older_subject" {
+  command = apply
+
+  variables {
+    github_subject_prefix = "repo:octo-org/octo-repo"
+  }
+
+  assert {
+    condition     = azurerm_federated_identity_credential.github.subject == "repo:octo-org/octo-repo:environment:azure-lab"
+    error_message = "A prefix without IDs must be stored as it is."
   }
 }
